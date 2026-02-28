@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sky Garden Merge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sky-top: #a1c4fd;
+            --sky-mid: #c2e9fb;
+            --pink-bottom: #fbc2eb;
+            --text-dark: #2d3436;
+            --bg-panel: rgba(255, 255, 255, 0.85);
+        }
+
+        @keyframes clouds {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes floatLogo {
+            0% { transform: translate(-50%, -50%) translateY(0px); }
+            50% { transform: translate(-50%, -50%) translateY(-10px); }
+            100% { transform: translate(-50%, -50%) translateY(0px); }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            /* Phối màu nền Xanh -> Hồng y hệt ảnh thiết kế bạn tải lên */
+            background: linear-gradient(135deg, var(--sky-top) 0%, var(--sky-mid) 40%, var(--pink-bottom) 100%);
+            background-size: 200% 200%;
+            animation: clouds 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        .app-wrapper {
+            display: flex;
+            gap: 25px;
+            align-items: stretch;
+            justify-content: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 400px;
+            height: 85vh;
+            max-height: 750px;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .evo-panel {
+            background: var(--bg-panel);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255,255,255,0.9);
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            height: 85vh;
+            max-height: 750px;
+            min-height: 600px;
+        }
+
+        .evo-panel h3 {
+            text-align: center; color: var(--text-dark); margin-bottom: 15px;
+            font-size: 20px; font-weight: 900; padding-bottom: 10px;
+            border-bottom: 2px dashed rgba(0,0,0,0.1);
+        }
+
+        .evo-list { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
+        .evo-list::-webkit-scrollbar { width: 6px; }
+        .evo-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
+        .evo-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
+
+        .evo-item {
+            display: flex; align-items: center; gap: 15px; margin-bottom: 10px;
+            padding: 10px; background: rgba(255,255,255,0.6); border-radius: 15px;
+            transition: transform 0.2s;
+        }
+        .evo-item:hover { transform: scale(1.02); }
+        .evo-icon {
+            width: 45px; height: 45px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-size: 22px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .evo-info { display: flex; flex-direction: column; }
+        .evo-name { font-weight: 900; color: var(--text-dark); font-size: 15px;}
+        .evo-pts { font-size: 12px; color: #636e72; font-weight: 700;}
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; z-index: 10; position: relative;
+        }
+
+        .title {
+            font-size: 26px; font-weight: 900; color: #fff;
+            text-shadow: 0px 3px 6px rgba(0,0,0,0.15); text-align: center;
+            width: 100%; position: absolute; top: -15px; left: 0; pointer-events: none;
+        }
+
+        .music-btn {
+            position: absolute; right: 0; top: -15px; background: rgba(255,255,255,0.9);
+            border: none; width: 40px; height: 40px; border-radius: 50%;
+            font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex; justify-content: center; align-items: center;
+            transition: transform 0.2s; z-index: 20;
+        }
+        .music-btn:active { transform: scale(0.9); }
+
+        .panel {
+            background: var(--bg-panel); padding: 10px 15px; border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08); backdrop-filter: blur(8px);
+            display: flex; flex-direction: column; align-items: center;
+            min-width: 80px; z-index: 10;
+        }
+
+        .panel-label { font-size: 12px; color: #636e72; text-transform: uppercase; font-weight: 900; }
+        .panel-value { font-size: 20px; color: var(--text-dark); font-weight: 900; }
+        #next-item-box { width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; font-size: 28px; }
+
+        .canvas-wrapper {
+            flex-grow: 1; position: relative;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(200, 230, 255, 0.2) 100%);
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1) inset, 0 8px 25px rgba(0,0,0,0.1);
+            border: 3px solid rgba(255,255,255,0.9); backdrop-filter: blur(10px);
+            overflow: hidden; display: flex; justify-content: center; align-items: center;
+        }
+
+        /* SVG Tự thiết kế - Logo Thương hiệu nổi bật & xịn xò */
+        .brand-logo-svg {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 80%; max-width: 300px;
+            transform: translate(-50%, -50%);
+            opacity: 0.35; /* Làm mờ vừa đủ để chìm dưới các vật phẩm */
+            pointer-events: none;
+            z-index: 0;
+            animation: floatLogo 6s ease-in-out infinite;
+        }
+
+        canvas {
+            display: block; width: 100%; height: 100%; border-radius: 17px;
+            touch-action: none; position: relative; z-index: 1;
+            background: transparent; 
+        }
+
+        .controls { display: flex; justify-content: center; margin-top: 15px; z-index: 10; }
+        button {
+            background: #fff; border: none; padding: 12px 30px; font-size: 16px; font-family: inherit; font-weight: 900;
+            color: var(--text-dark); border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s, background 0.2s;
+        }
+        button:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button.primary-btn { background: linear-gradient(to right, #a1c4fd, #fbc2eb); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);}
+
+        .modal {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s; border-radius: 20px;
+        }
+        .modal.active { opacity: 1; pointer-events: all; }
+        .modal-content {
+            background: #fff; padding: 30px; border-radius: 25px; text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 85%; max-width: 320px; max-height: 90%; overflow-y: auto;
+        }
+        .modal.active .modal-content { transform: translateY(0); }
+        .modal h2 { color: var(--text-dark); margin-bottom: 10px; font-size: 26px; }
+        .modal p { color: #636e72; margin-bottom: 15px; font-size: 14px; }
+        .rainbow-text {
+            background: linear-gradient(to right, #ff7675, #fdcb6e, #55efc4, #74b9ff, #a29bfe);
+            -webkit-background-clip: text; color: transparent; font-weight: 900;
+        }
+
+        .custom-input {
+            width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #a1c4fd;
+            font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; text-align: center;
+            margin-bottom: 15px; outline: none; color: var(--text-dark); background: #fff;
+        }
+        .custom-input:focus { border-color: #fbc2eb; box-shadow: 0 0 8px rgba(251, 194, 235, 0.5); }
+        select.custom-input { cursor: pointer; text-align: left; }
+
+        .leaderboard {
+            margin-top: 15px; margin-bottom: 20px; text-align: left; background: #f8f9fa;
+            border-radius: 12px; padding: 10px 15px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .leaderboard h3 { font-size: 16px; margin-bottom: 10px; text-align: center; color: #2d3436; }
+        .leaderboard-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #dfe6e9; font-size: 14px; }
+        .leaderboard-item:last-child { border-bottom: none; }
+        .lb-name { font-weight: 700; color: #636e72; }
+        .lb-score { font-weight: 900; color: #a1c4fd; }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; align-items: flex-start; }
+            .app-wrapper { flex-direction: column; align-items: center; }
+            #game-container { height: 75vh; min-height: 500px; }
+            .evo-panel { width: 100%; max-width: 400px; height: auto; min-height: 300px; margin-bottom: 30px;}
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- KHUNG GAME CHÍNH -->
+    <div id="game-container">
+        <div class="title">Sky Garden</div>
+        <button id="music-btn" class="music-btn" onclick="toggleBGM()">🎵</button>
+        
+        <div class="header">
+            <div class="panel">
+                <div class="panel-label">Score</div>
+                <div class="panel-value" id="score-display">0</div>
+            </div>
+            <div class="panel">
+                <div class="panel-label">Next</div>
+                <div id="next-item-box">🌱</div>
+            </div>
+        </div>
+
+        <div class="canvas-wrapper" id="canvas-wrapper">
+            <!-- 🎨 LOGO THƯƠNG HIỆU TỰ THIẾT KẾ BẰNG SVG (GIỐNG HỆT ẢNH BẠN GỬI) -->
+            <svg class="brand-logo-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <radialGradient id="glass" cx="40%" cy="30%" r="60%">
+                        <stop offset="0%" stop-color="rgba(255,255,255,0.9)" />
+                        <stop offset="40%" stop-color="rgba(255,255,255,0.2)" />
+                        <stop offset="100%" stop-color="rgba(180,200,255,0.5)" />
+                    </radialGradient>
+                    <radialGradient id="orb" cx="30%" cy="30%" r="60%">
+                        <stop offset="0%" stop-color="#fff" />
+                        <stop offset="30%" stop-color="#ff9a9e" />
+                        <stop offset="70%" stop-color="#a1c4fd" />
+                        <stop offset="100%" stop-color="#fbc2eb" />
+                    </radialGradient>
+                    <radialGradient id="seedGrad" cx="30%" cy="30%" r="60%">
+                        <stop offset="0%" stop-color="#e0f6c8" />
+                        <stop offset="100%" stop-color="#86e3ce" />
+                    </radialGradient>
+                </defs>
+
+                <!-- Quả cầu pha lê (Bubble) -->
+                <circle cx="150" cy="110" r="95" fill="url(#glass)" stroke="rgba(255,255,255,0.9)" stroke-width="4"/>
+                <circle cx="150" cy="110" r="95" fill="none" stroke="#fbc2eb" stroke-width="6" filter="blur(6px)" opacity="0.6"/>
+
+                <!-- Đám mây (Cloud) -->
+                <path d="M110 75 Q110 50 135 50 Q150 25 170 50 Q195 50 195 75 Z" fill="#fff" opacity="0.95"/>
+                <path d="M115 75 Q115 55 135 55 Q150 35 165 55 Q185 55 185 75 Z" fill="#fbc2eb" opacity="0.4"/>
+
+                <!-- Bông hoa (Flower) -->
+                <g transform="translate(150, 85)">
+                    <circle cx="0" cy="-12" r="7" fill="#f1c40f"/>
+                    <circle cx="11" cy="-4" r="7" fill="#f1c40f"/>
+                    <circle cx="7" cy="9" r="7" fill="#f1c40f"/>
+                    <circle cx="-7" cy="9" r="7" fill="#f1c40f"/>
+                    <circle cx="-11" cy="-4" r="7" fill="#f1c40f"/>
+                    <circle cx="0" cy="0" r="8" fill="#f39c12"/>
+                </g>
+
+                <!-- Hạt giống xanh (Green Seed Bubble) -->
+                <circle cx="115" cy="130" r="28" fill="url(#seedGrad)" stroke="rgba(255,255,255,0.6)" stroke-width="3"/>
+                <path d="M105 130 Q115 115 125 130 M115 115 L115 140" stroke="#1b4d3e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+                <!-- Ngọc Cầu Vồng (Rainbow Orb) -->
+                <circle cx="155" cy="145" r="22" fill="url(#orb)" stroke="#fff" stroke-width="2"/>
+
+                <!-- Mầm cây xanh (Plant Sprout) -->
+                <path d="M175 155 Q160 120 195 105 Q185 135 175 155 Z" fill="#00b894"/>
+                <path d="M175 155 Q155 135 140 125 Q155 145 175 155 Z" fill="#55efc4"/>
+                <path d="M175 155 L175 175" stroke="#00b894" stroke-width="4" stroke-linecap="round"/>
+
+                <!-- Typography - Chữ viền đậm như logo gốc -->
+                <text x="150" y="240" font-family="'Nunito', sans-serif" font-weight="900" font-size="34" fill="#fff" text-anchor="middle" stroke="#a1c4fd" stroke-width="9" paint-order="stroke" stroke-linejoin="round">SKY GARDEN</text>
+                <text x="150" y="280" font-family="'Nunito', sans-serif" font-weight="900" font-size="32" fill="#fff" text-anchor="middle" stroke="#fbc2eb" stroke-width="9" paint-order="stroke" stroke-linejoin="round">MERGE</text>
+            </svg>
+            
+            <canvas id="gameCanvas"></canvas>
+            
+            <!-- Start Modal -->
+            <div class="modal active" id="start-modal">
+                <div class="modal-content">
+                    <h2 class="rainbow-text">Sky Garden</h2>
+                    <p>Trồng cây, ghép hạt, và khám phá<br>Cây Sinh Mệnh tối thượng!</p>
+                    
+                    <input type="text" id="player-name-input" class="custom-input" placeholder="Nhập tên của bạn..." maxlength="12">
+                    
+                    <select id="diff-select" class="custom-input">
+                        <option value="easy">🌟 Mức Dễ (Có chỉ dẫn, Ít nảy)</option>
+                        <option value="normal" selected>🎯 Bình thường (Chuẩn)</option>
+                        <option value="hard">🔥 Mức Khó (Cây nảy mạnh, Ẩn vạch)</option>
+                    </select>
+
+                    <button class="primary-btn" onclick="startGame()" style="width: 100%;">Bắt đầu trồng cây</button>
+                </div>
+            </div>
+
+            <!-- Game Over Modal -->
+            <div class="modal" id="game-over-modal">
+                <div class="modal-content">
+                    <h2>Game Over!</h2>
+                    <p>Khu vườn đã quá đầy rồi.</p>
+                    <div class="leaderboard">
+                        <h3>🏆 Bảng Xếp Hạng</h3>
+                        <div id="leaderboard-list"></div>
+                    </div>
+                    <button class="primary-btn" onclick="showStartModal()" style="width: 100%;">Chơi lại</button>
+                </div>
+            </div>
+
+            <!-- Victory Modal -->
+            <div class="modal" id="victory-modal">
+                <div class="modal-content">
+                    <h2 class="rainbow-text">Tuyệt vời!</h2>
+                    <p>🌈 Bạn đã gieo trồng được Cây Tối Thượng!</p>
+                    <button class="primary-btn" onclick="continueGame()" style="margin-bottom: 10px; width: 100%;">Tiếp tục chơi</button>
+                    <button onclick="showStartModal()" style="background: #f1f2f6; width: 100%;">Chơi ván mới</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="showStartModal()">Đổi Cài Đặt / Chơi lại</button>
+        </div>
+    </div>
+
+    <!-- SỔ TAY TIẾN HÓA KẾ BÊN -->
+    <div class="evo-panel">
+        <h3>📖 Sổ tay tiến hóa</h3>
+        <div class="evo-list" id="evo-list"></div>
+    </div>
+</div>
+
+<script>
+    /* ==========================================
+       HỆ THỐNG CẤP ĐỘ VẬT PHẨM (11 CẤP)
+       ========================================== */
+    const LEVELS = [
+        { level: 1, name: "Hạt giống", icon: "🌱", color: "#b5e7a0", radius: 14, mass: 1, points: 2 },
+        { level: 2, name: "Mầm cây", icon: "🌿", color: "#86e3ce", radius: 20, mass: 2, points: 4 },
+        { level: 3, name: "Cây non", icon: "🍀", color: "#d0e6a5", radius: 27, mass: 4, points: 8 },
+        { level: 4, name: "Hoa nhỏ", icon: "🌼", color: "#ffdd94", radius: 36, mass: 8, points: 16 },
+        { level: 5, name: "Hoa lớn", icon: "🌺", color: "#fa897b", radius: 47, mass: 16, points: 32 },
+        { level: 6, name: "Cây trưởng thành", icon: "🌳", color: "#ccabd8", radius: 60, mass: 32, points: 64 },
+        { level: 7, name: "Cây cổ thụ", icon: "🌲", color: "#86af49", radius: 76, mass: 64, points: 128 },
+        { level: 8, name: "Cây thần", icon: "🌈", color: "#b39cd0", radius: 95, mass: 128, points: 256 },
+        { level: 9, name: "Cây Pha Lê", icon: "🔮", color: "#74b9ff", radius: 118, mass: 256, points: 512 },
+        { level: 10, name: "Cây Vũ Trụ", icon: "🌌", color: "#0984e3", radius: 145, mass: 512, points: 1024 },
+        { level: 11, name: "Cây Sinh Mệnh", icon: "👑", color: "#fdcb6e", radius: 175, mass: 1024, points: 2048 }
+    ];
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const wrapper = document.getElementById('canvas-wrapper');
+
+    const LOGICAL_WIDTH = 400;
+    const LOGICAL_HEIGHT = 600;
+    const GAME_OVER_LINE = 100;
+
+    let scaleRatio = 1;
+    let canvasRect;
+    let gameConfig = { bounce: 0.3, showGuide: true };
+    let bodies = [], particles = [];
+    let score = 0, gameState = 'START'; 
+    let currentDropItem = null, nextItemLevel = 1;
+    let mouseX = LOGICAL_WIDTH / 2, targetMouseX = LOGICAL_WIDTH / 2;
+    let canDrop = true, hasReachedMax = false; 
+
+    let playerName = "Khách";
+    let leaderboardData = JSON.parse(localStorage.getItem('skyGardenLB_V3')) || [];
+    let screenShake = 0;
+
+    const sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let bgmCtx = null, isBgmPlaying = true, bgmTimer = null;
+    let melodyIndex = 0;
+
+    function resizeCanvas() {
+        wrapper.getBoundingClientRect();
+        canvas.width = LOGICAL_WIDTH;
+        canvas.height = LOGICAL_HEIGHT;
+        canvasRect = canvas.getBoundingClientRect();
+        scaleRatio = canvas.width / canvasRect.width;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function initApp() {
+        let savedName = localStorage.getItem('skyGardenName');
+        if(savedName) document.getElementById('player-name-input').value = savedName;
+        updateLeaderboardUI();
+        renderEvolutionPanel();
+    }
+
+    function renderEvolutionPanel() {
+        const list = document.getElementById('evo-list');
+        let html = "";
+        LEVELS.forEach(lvl => {
+            html += `
+            <div class="evo-item">
+                <div class="evo-icon" style="background: ${lvl.color}">${lvl.icon}</div>
+                <div class="evo-info">
+                    <div class="evo-name">${lvl.name}</div>
+                    <div class="evo-pts">+${lvl.points} Điểm (Cấp ${lvl.level})</div>
+                </div>
+            </div>`;
+        });
+        list.innerHTML = html;
+    }
+
+    function showStartModal() {
+        gameState = 'START';
+        document.getElementById('start-modal').classList.add('active');
+        document.getElementById('game-over-modal').classList.remove('active');
+        document.getElementById('victory-modal').classList.remove('active');
+    }
+
+    function startGame() {
+        let inputName = document.getElementById('player-name-input').value.trim();
+        playerName = inputName !== "" ? inputName : "Người Ẩn Danh";
+        localStorage.setItem('skyGardenName', playerName);
+        
+        let diffMode = document.getElementById('diff-select').value;
+        if(diffMode === 'easy') gameConfig = { bounce: 0.15, showGuide: true };
+        else if(diffMode === 'hard') gameConfig = { bounce: 0.6, showGuide: false };
+        else gameConfig = { bounce: 0.35, showGuide: true };
+
+        document.getElementById('start-modal').classList.remove('active');
+        
+        if(isBgmPlaying && sfxCtx.state === 'suspended') sfxCtx.resume();
+        if(isBgmPlaying && !bgmTimer) startAmbientBGM();
+
+        bodies = []; particles = []; score = 0;
+        document.getElementById('score-display').innerText = 0;
+        hasReachedMax = false; canDrop = true;
+        setNextItem(); mouseX = LOGICAL_WIDTH / 2; targetMouseX = LOGICAL_WIDTH / 2;
+        createCurrentDropItem(); gameState = 'PLAYING';
+    }
+
+    function saveScore() {
+        if(score > 0) {
+            leaderboardData.push({ name: playerName, score: score });
+            leaderboardData.sort((a, b) => b.score - a.score);
+            leaderboardData = leaderboardData.slice(0, 5);
+            localStorage.setItem('skyGardenLB_V3', JSON.stringify(leaderboardData));
+        }
+        updateLeaderboardUI();
+    }
+
+    function updateLeaderboardUI() {
+        const list = document.getElementById('leaderboard-list');
+        if (leaderboardData.length === 0) {
+            list.innerHTML = "<div class='leaderboard-item' style='justify-content:center; color:#999;'>Chưa có kỷ lục nào</div>";
+            return;
+        }
+        let html = "";
+        leaderboardData.forEach((item, index) => {
+            let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🌱';
+            html += `<div class="leaderboard-item"><span class="lb-name">${medal} ${item.name}</span><span class="lb-score">${item.score}</span></div>`;
+        });
+        list.innerHTML = html;
+    }
+
+    /* ==========================================
+       HỆ THỐNG ÂM THANH - NHẠC VUI TƯƠI, NHỘN NHỊP
+       ========================================== */
+    function playSFX(level) {
+        if (!sfxCtx || sfxCtx.state !== 'running') return;
+        try {
+            const osc = sfxCtx.createOscillator();
+            const gain = sfxCtx.createGain();
+            osc.type = 'sine';
+            let startFreq = 300 + level * 40, endFreq = 600 + level * 80;
+            if(level >= 10) { osc.type = 'triangle'; startFreq = 200; endFreq = 80; }
+            osc.frequency.setValueAtTime(startFreq, sfxCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(endFreq, sfxCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.3, sfxCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, sfxCtx.currentTime + 0.15);
+            osc.connect(gain); gain.connect(sfxCtx.destination);
+            osc.start(); osc.stop(sfxCtx.currentTime + 0.2);
+        } catch(e) {}
+    }
+
+    // Nhạc nền Arpeggio vui nhộn (Upbeat / 8-bit style)
+    const happyMelody = [
+        { n: 523.25, d: 200 }, { n: 659.25, d: 200 }, { n: 783.99, d: 200 }, { n: 659.25, d: 200 }, // C E G E
+        { n: 880.00, d: 400 }, { n: 783.99, d: 400 }, // A G (long)
+        { n: 523.25, d: 200 }, { n: 587.33, d: 200 }, { n: 659.25, d: 200 }, { n: 587.33, d: 200 }, // C D E D
+        { n: 523.25, d: 600 }, { n: 0, d: 200 } // C (long) + Rest
+    ];
+
+    function startAmbientBGM() {
+        if(!bgmCtx) bgmCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if(bgmCtx.state === 'suspended') bgmCtx.resume();
+        playNextNote();
+    }
+
+    function playNextNote() {
+        if(!isBgmPlaying) return;
+        
+        let noteObj = happyMelody[melodyIndex];
+        
+        if (noteObj.n > 0) {
+            let osc = bgmCtx.createOscillator();
+            let gain = bgmCtx.createGain();
+
+            // Sóng Square tạo cảm giác nhạc game chiptune/nhộn nhịp
+            osc.type = 'square';
+            osc.frequency.value = noteObj.n;
+
+            // Plucky Envelope
+            gain.gain.setValueAtTime(0, bgmCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.05, bgmCtx.currentTime + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, bgmCtx.currentTime + (noteObj.d / 1000) * 0.8);
+
+            // Filter để bớt chói tai
+            let filter = bgmCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1000, bgmCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(400, bgmCtx.currentTime + 0.1);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(bgmCtx.destination);
+
+            osc.start();
+            osc.stop(bgmCtx.currentTime + (noteObj.d / 1000));
+        }
+
+        melodyIndex = (melodyIndex + 1) % happyMelody.length;
+        bgmTimer = setTimeout(playNextNote, noteObj.d);
+    }
+
+    function toggleBGM() {
+        isBgmPlaying = !isBgmPlaying;
+        let btn = document.getElementById('music-btn');
+        if(isBgmPlaying) {
+            btn.innerText = "🎵";
+            if(sfxCtx.state === 'suspended') sfxCtx.resume();
+            startAmbientBGM();
+        } else {
+            btn.innerText = "🔇";
+            clearTimeout(bgmTimer); bgmTimer = null;
+        }
+    }
+
+    function shadeColor(color, percent) {
+        let R = parseInt(color.substring(1,3),16), G = parseInt(color.substring(3,5),16), B = parseInt(color.substring(5,7),16);
+        R = parseInt(R * (100 + percent) / 100); G = parseInt(G * (100 + percent) / 100); B = parseInt(B * (100 + percent) / 100);
+        R = (R<255)?R:255; G = (G<255)?G:255; B = (B<255)?B:255;  
+        R = Math.max(0, R); G = Math.max(0, G); B = Math.max(0, B);
+        let RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+        let GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+        let BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+        return "#"+RR+GG+BB;
+    }
+
+    class Body {
+        constructor(x, y, levelIndex) {
+            let def = LEVELS[levelIndex];
+            this.x = x; this.y = y; this.vx = 0; this.vy = 0;
+            this.levelIndex = levelIndex; this.radius = def.radius;
+            this.mass = def.mass; this.color = def.color; this.icon = def.icon;
+            this.markedForMerge = false; this.spawnScale = 0; 
+        }
+
+        update(dt) {
+            if (this.spawnScale < 1) { this.spawnScale += 0.08; if (this.spawnScale > 1) this.spawnScale = 1; }
+            this.vy += 0.6; this.vx *= 0.99; this.vy *= 0.99;
+            this.x += this.vx; this.y += this.vy;
+            let currentBounce = gameConfig.bounce;
+
+            if (this.x - this.radius < 0) { this.x = this.radius; this.vx *= -currentBounce; }
+            else if (this.x + this.radius > LOGICAL_WIDTH) { this.x = LOGICAL_WIDTH - this.radius; this.vx *= -currentBounce; }
+
+            if (this.y + this.radius > LOGICAL_HEIGHT) {
+                this.y = LOGICAL_HEIGHT - this.radius; this.vy *= -currentBounce; this.vx *= 0.8; 
+            }
+        }
+
+        draw(ctx) {
+            ctx.save(); ctx.translate(this.x, this.y); ctx.scale(this.spawnScale, this.spawnScale);
+            ctx.shadowColor = this.color; ctx.shadowBlur = this.radius * 0.4; ctx.shadowOffsetY = 2;
+
+            let grad = ctx.createRadialGradient(-this.radius * 0.25, -this.radius * 0.25, this.radius * 0.1, 0, 0, this.radius);
+            grad.addColorStop(0, '#ffffff'); grad.addColorStop(0.3, this.color);
+            grad.addColorStop(0.9, shadeColor(this.color, -20)); grad.addColorStop(1, shadeColor(this.color, -40));
+
+            ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2); ctx.fillStyle = grad; ctx.fill();
+
+            ctx.beginPath(); ctx.ellipse(-this.radius * 0.2, -this.radius * 0.3, this.radius * 0.5, this.radius * 0.25, -Math.PI / 6, 0, Math.PI * 2);
+            let glassGrad = ctx.createLinearGradient(0, -this.radius, 0, 0);
+            glassGrad.addColorStop(0, "rgba(255, 255, 255, 0.9)"); glassGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
+            ctx.fillStyle = glassGrad; ctx.fill();
+
+            ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+            ctx.font = `${this.radius * 1.0}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(this.icon, 0, this.radius * 0.1);
+            ctx.restore();
+        }
+    }
+
+    function resolveCollisions() {
+        let mergesThisFrame = [];
+        for (let i = 0; i < bodies.length; i++) {
+            for (let j = i + 1; j < bodies.length; j++) {
+                let a = bodies[i], b = bodies[j];
+                let dx = b.x - a.x, dy = b.y - a.y;
+                let distSq = dx * dx + dy * dy, minDist = a.radius + b.radius;
+
+                if (distSq < minDist * minDist && distSq > 0) {
+                    let dist = Math.sqrt(distSq), overlap = minDist - dist;
+
+                    if (a.levelIndex === b.levelIndex && !a.markedForMerge && !b.markedForMerge) {
+                        if (a.levelIndex < LEVELS.length - 1) {
+                            a.markedForMerge = true; b.markedForMerge = true;
+                            mergesThisFrame.push({a, b, level: a.levelIndex + 1, x: (a.x + b.x)/2, y: (a.y + b.y)/2}); continue;
+                        } else {
+                            a.markedForMerge = true; b.markedForMerge = true;
+                            mergesThisFrame.push({a, b, level: LEVELS.length - 1, isMaxMerge: true, x: (a.x + b.x)/2, y: (a.y + b.y)/2}); continue;
+                        }
+                    }
+
+                    let nx = dx / dist, ny = dy / dist;
+                    let correction = Math.max(overlap - 0.1, 0) / ((1/a.mass) + (1/b.mass)) * 0.5;
+                    a.x -= nx * correction / a.mass; a.y -= ny * correction / a.mass;
+                    b.x += nx * correction / b.mass; b.y += ny * correction / b.mass;
+
+                    let rvx = b.vx - a.vx, rvy = b.vy - a.vy;
+                    let velAlongNormal = rvx * nx + rvy * ny;
+                    if (velAlongNormal > 0) continue; 
+
+                    let jVal = -(1 + 0.1) * velAlongNormal; jVal /= (1/a.mass + 1/b.mass);
+                    a.vx -= jVal * nx / a.mass; a.vy -= jVal * ny / a.mass;
+                    b.vx += jVal * nx / b.mass; b.vy += jVal * ny / b.mass;
+                }
+            }
+        }
+
+        if (mergesThisFrame.length > 0) {
+            bodies = bodies.filter(b => !b.markedForMerge); 
+            mergesThisFrame.forEach(m => {
+                if (m.isMaxMerge) {
+                    addScore(5000); spawnParticles(m.x, m.y, "#fff", 40); playSFX(12); screenShake = 20;
+                } else {
+                    let newBody = new Body(m.x, m.y, m.level); newBody.vy = -2; bodies.push(newBody);
+                    addScore(LEVELS[m.level].points); spawnParticles(m.x, m.y, LEVELS[m.level].color, 15);
+                    playSFX(m.level); screenShake = m.level * 1.5;
+
+                    if (m.level === LEVELS.length - 1 && !hasReachedMax) {
+                        hasReachedMax = true; setTimeout(() => showVictory(), 500);
+                    }
+                }
+            });
+        }
+    }
+
+    class Particle {
+        constructor(x, y, color) {
+            this.x = x; this.y = y; let angle = Math.random() * Math.PI * 2, speed = Math.random() * 6 + 2;
+            this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
+            this.life = 1.0; this.color = color; this.size = Math.random() * 6 + 3;
+        }
+        update() { this.x += this.vx; this.y += this.vy; this.life -= 0.03; this.size *= 0.95; }
+        draw(ctx) {
+            ctx.globalAlpha = Math.max(0, this.life); ctx.fillStyle = this.color;
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0;
+        }
+    }
+    function spawnParticles(x, y, color, count) { for (let i = 0; i < count; i++) particles.push(new Particle(x, y, color)); }
+
+    function setNextItem() {
+        let rand = Math.random(); if(rand < 0.5) nextItemLevel = 0; else if (rand < 0.85) nextItemLevel = 1; else nextItemLevel = 2;
+        document.getElementById('next-item-box').innerText = LEVELS[nextItemLevel].icon;
+    }
+
+    function createCurrentDropItem() {
+        let radius = LEVELS[nextItemLevel].radius;
+        currentDropItem = new Body(Math.max(radius, Math.min(LOGICAL_WIDTH - radius, mouseX)), 40, nextItemLevel); currentDropItem.vy = 0;
+    }
+
+    function dropItem() {
+        if (!canDrop || gameState !== 'PLAYING') return;
+        playSFX(0); bodies.push(currentDropItem); currentDropItem = null; canDrop = false;
+        setTimeout(() => { if (gameState === 'PLAYING') { setNextItem(); createCurrentDropItem(); canDrop = true; } }, 800);
+    }
+
+    function updateMousePos(e) {
+        if (gameState !== 'PLAYING') return;
+        let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        canvasRect = canvas.getBoundingClientRect(); scaleRatio = LOGICAL_WIDTH / canvasRect.width;
+        targetMouseX = (clientX - canvasRect.left) * scaleRatio;
+    }
+
+    canvas.addEventListener('mousemove', updateMousePos);
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); updateMousePos(e); }, {passive: false});
+    canvas.addEventListener('mousedown', dropItem);
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); updateMousePos(e); dropItem(); }, {passive: false});
+
+    function checkGameOver() {
+        let isOver = false;
+        for (let i = 0; i < bodies.length; i++) {
+            let b = bodies[i];
+            if (b.y - b.radius < GAME_OVER_LINE) {
+                if (Math.abs(b.vy) < 1 && Math.abs(b.vx) < 1) { b.dangerTimer = (b.dangerTimer || 0) + 1; if (b.dangerTimer > 120) { isOver = true; break; } }
+                else b.dangerTimer = 0;
+            } else b.dangerTimer = 0;
+        }
+        if (isOver) { gameState = 'GAMEOVER'; saveScore(); document.getElementById('game-over-modal').classList.add('active'); }
+    }
+
+    function addScore(points) {
+        score += points; document.getElementById('score-display').innerText = score;
+        let scoreEl = document.getElementById('score-display');
+        scoreEl.style.transform = "scale(1.5)"; setTimeout(() => scoreEl.style.transform = "scale(1)", 150);
+    }
+
+    function showVictory() { gameState = 'VICTORY_PAUSE'; document.getElementById('victory-modal').classList.add('active'); }
+    function continueGame() { gameState = 'PLAYING'; document.getElementById('victory-modal').classList.remove('active'); }
+
+    function gameLoop() {
+        ctx.clearRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
+
+        if (gameState === 'PLAYING') mouseX += (targetMouseX - mouseX) * 0.15;
+        if (currentDropItem) {
+            let r = currentDropItem.radius;
+            currentDropItem.x = Math.max(r, Math.min(LOGICAL_WIDTH - r, mouseX)); currentDropItem.y = 40 + Math.sin(Date.now() / 300) * 4;
+        }
+
+        ctx.save();
+        if (screenShake > 0.5) { ctx.translate((Math.random()-0.5)*screenShake, (Math.random()-0.5)*screenShake); screenShake *= 0.85; }
+
+        ctx.beginPath(); ctx.setLineDash([8, 8]); ctx.moveTo(0, GAME_OVER_LINE); ctx.lineTo(LOGICAL_WIDTH, GAME_OVER_LINE);
+        ctx.strokeStyle = "rgba(255, 80, 80, 0.5)"; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.stroke(); ctx.setLineDash([]);
+        
+        let dangerGrad = ctx.createLinearGradient(0, GAME_OVER_LINE - 10, 0, GAME_OVER_LINE + 10);
+        dangerGrad.addColorStop(0, "rgba(255, 100, 100, 0)"); dangerGrad.addColorStop(0.5, "rgba(255, 100, 100, 0.15)"); dangerGrad.addColorStop(1, "rgba(255, 100, 100, 0)");
+        ctx.fillStyle = dangerGrad; ctx.fillRect(0, GAME_OVER_LINE - 10, LOGICAL_WIDTH, 20);
+
+        if (gameState === 'PLAYING') {
+            for (let s = 0; s < 6; s++) { bodies.forEach(b => b.update(1/6)); resolveCollisions(); }
+            checkGameOver();
+        }
+
+        bodies.forEach(b => {
+            b.draw(ctx);
+            if (b.dangerTimer > 0) { ctx.beginPath(); ctx.arc(b.x, b.y, b.radius + Math.sin(Date.now()/100)*5, 0, Math.PI*2); ctx.strokeStyle = "rgba(255,0,0,0.5)"; ctx.lineWidth = 2; ctx.stroke(); }
+        });
+
+        for (let i = particles.length - 1; i >= 0; i--) { particles[i].update(); particles[i].draw(ctx); if (particles[i].life <= 0) particles.splice(i, 1); }
+
+        if (currentDropItem && (gameState === 'PLAYING' || gameState === 'START')) {
+            ctx.globalAlpha = 0.9;
+            if(gameConfig.showGuide) {
+                let guideGrad = ctx.createLinearGradient(currentDropItem.x, currentDropItem.y, currentDropItem.x, LOGICAL_HEIGHT);
+                guideGrad.addColorStop(0, "rgba(255, 255, 255, 0.8)"); guideGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
+                ctx.beginPath(); ctx.moveTo(currentDropItem.x, currentDropItem.y + currentDropItem.radius);
+                ctx.lineTo(currentDropItem.x, LOGICAL_HEIGHT); ctx.strokeStyle = guideGrad; ctx.lineWidth = 2; ctx.setLineDash([6, 6]); ctx.stroke(); ctx.setLineDash([]);
+            }
+
+            ctx.globalAlpha = 1.0; let nextDef = LEVELS[nextItemLevel]; let nextRadius = 24; 
+            let nx = currentDropItem.x + currentDropItem.radius + 35; if (nx + nextRadius > LOGICAL_WIDTH - 10) nx = currentDropItem.x - currentDropItem.radius - 35;
+            let ny = currentDropItem.y + Math.sin(Date.now() / 250) * 3;
+            
+            ctx.beginPath(); ctx.arc(nx, ny + 5, nextRadius + 6, 0, Math.PI * 2); ctx.fillStyle = "rgba(255, 255, 255, 0.75)"; ctx.shadowColor = "rgba(0,0,0,0.1)"; ctx.shadowBlur = 10; ctx.fill(); ctx.shadowBlur = 0;
+            ctx.font = `900 13px Nunito`; ctx.fillStyle = "#ff7675"; ctx.textAlign = 'center'; ctx.fillText("NEXT", nx, ny - nextRadius - 2);
+            ctx.beginPath(); ctx.arc(nx, ny + 8, nextRadius, 0, Math.PI * 2); ctx.fillStyle = nextDef.color; ctx.fill();
+            ctx.font = `${nextRadius * 1.1}px Arial`; ctx.textBaseline = 'middle'; ctx.fillText(nextDef.icon, nx, ny + 9);
+            ctx.globalAlpha = 1.0; currentDropItem.draw(ctx);
+        }
+
+        ctx.restore(); requestAnimationFrame(gameLoop);
+    }
+
+    initApp();
+    requestAnimationFrame(gameLoop);
+
+</script>
+</body>
+</html>
