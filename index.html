@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sky Garden Merge</title>
+    <title>Sky Garden Merge - Landscape</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -36,7 +36,6 @@
 
         body {
             font-family: 'Nunito', sans-serif;
-            /* Phối màu nền Xanh -> Hồng y hệt ảnh thiết kế bạn tải lên */
             background: linear-gradient(135deg, var(--sky-top) 0%, var(--sky-mid) 40%, var(--pink-bottom) 100%);
             background-size: 200% 200%;
             animation: clouds 15s ease infinite;
@@ -46,29 +45,110 @@
             align-items: center;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 20px;
+            padding: 15px;
         }
 
+        /* Bố cục chính tự động thích ứng */
         .app-wrapper {
             display: flex;
-            gap: 25px;
+            gap: 20px;
             align-items: stretch;
             justify-content: center;
             width: 100%;
-            max-width: 800px;
+            max-width: 1400px;
+            flex-direction: column; /* Mặc định dọc trên đt dọc */
         }
 
+        @media (min-width: 1024px) {
+            .app-wrapper {
+                flex-direction: row; /* Chuyển sang ngang trên Desktop/Tablet ngang */
+            }
+        }
+
+        /* KHUNG GAME NGANG */
         #game-container {
             width: 100%;
-            max-width: 400px;
-            height: 85vh;
-            max-height: 750px;
-            min-height: 600px;
+            max-width: 1000px; /* Chiều rộng tối đa lớn hơn nhiều */
             display: flex;
             flex-direction: column;
             position: relative;
+            flex-grow: 1;
         }
 
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            z-index: 10;
+            position: relative;
+        }
+
+        .title {
+            font-size: 28px; font-weight: 900; color: #fff;
+            text-shadow: 0px 3px 6px rgba(0,0,0,0.15); text-align: center;
+            width: 100%; position: absolute; top: -10px; left: 0; pointer-events: none;
+        }
+
+        .music-btn {
+            position: absolute; right: 0; top: -10px; background: rgba(255,255,255,0.9);
+            border: none; width: 45px; height: 45px; border-radius: 50%;
+            font-size: 22px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex; justify-content: center; align-items: center;
+            transition: transform 0.2s; z-index: 20;
+        }
+        .music-btn:active { transform: scale(0.9); }
+
+        .panel {
+            background: var(--bg-panel); padding: 8px 15px; border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08); backdrop-filter: blur(8px);
+            display: flex; flex-direction: column; align-items: center;
+            min-width: 100px; z-index: 10;
+        }
+
+        .panel-label { font-size: 13px; color: #636e72; text-transform: uppercase; font-weight: 900; }
+        .panel-value { font-size: 22px; color: var(--text-dark); font-weight: 900; }
+        #next-item-box { width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; font-size: 30px; }
+
+        /* Vùng chứa Canvas giữ tỷ lệ 16:10 mượt mà */
+        .canvas-wrapper {
+            width: 100%;
+            aspect-ratio: 16 / 10; /* Tỷ lệ màn hình ngang hoàn hảo */
+            position: relative;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(200, 230, 255, 0.2) 100%);
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1) inset, 0 8px 25px rgba(0,0,0,0.1);
+            border: 3px solid rgba(255,255,255,0.9); backdrop-filter: blur(10px);
+            overflow: hidden; display: flex; justify-content: center; align-items: center;
+        }
+
+        .brand-logo-svg {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 60%; max-width: 400px;
+            transform: translate(-50%, -50%);
+            opacity: 0.25;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatLogo 6s ease-in-out infinite;
+        }
+
+        canvas {
+            display: block; width: 100%; height: 100%; border-radius: 17px;
+            touch-action: none; position: relative; z-index: 1;
+            background: transparent; 
+        }
+
+        .controls { display: flex; justify-content: center; margin-top: 15px; z-index: 10; }
+        
+        button {
+            background: #fff; border: none; padding: 12px 30px; font-size: 16px; font-family: inherit; font-weight: 900;
+            color: var(--text-dark); border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s, background 0.2s;
+        }
+        button:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button.primary-btn { background: linear-gradient(to right, #a1c4fd, #fbc2eb); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);}
+
+        /* Bảng Tiến Hóa (Bên phải trên Desktop, Ở dưới trên Mobile) */
         .evo-panel {
             background: var(--bg-panel);
             border-radius: 20px;
@@ -76,12 +156,12 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             backdrop-filter: blur(10px);
             border: 3px solid rgba(255,255,255,0.9);
-            width: 300px;
+            width: 100%;
+            max-width: 320px;
             display: flex;
             flex-direction: column;
-            height: 85vh;
-            max-height: 750px;
-            min-height: 600px;
+            height: auto;
+            max-height: calc(100vw * 10 / 16 + 80px); /* Đồng bộ chiều cao tương đối với canvas */
         }
 
         .evo-panel h3 {
@@ -104,78 +184,13 @@
         .evo-icon {
             width: 45px; height: 45px; border-radius: 50%; display: flex;
             align-items: center; justify-content: center; font-size: 22px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15); flex-shrink: 0;
         }
         .evo-info { display: flex; flex-direction: column; }
         .evo-name { font-weight: 900; color: var(--text-dark); font-size: 15px;}
         .evo-pts { font-size: 12px; color: #636e72; font-weight: 700;}
 
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; z-index: 10; position: relative;
-        }
-
-        .title {
-            font-size: 26px; font-weight: 900; color: #fff;
-            text-shadow: 0px 3px 6px rgba(0,0,0,0.15); text-align: center;
-            width: 100%; position: absolute; top: -15px; left: 0; pointer-events: none;
-        }
-
-        .music-btn {
-            position: absolute; right: 0; top: -15px; background: rgba(255,255,255,0.9);
-            border: none; width: 40px; height: 40px; border-radius: 50%;
-            font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex; justify-content: center; align-items: center;
-            transition: transform 0.2s; z-index: 20;
-        }
-        .music-btn:active { transform: scale(0.9); }
-
-        .panel {
-            background: var(--bg-panel); padding: 10px 15px; border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08); backdrop-filter: blur(8px);
-            display: flex; flex-direction: column; align-items: center;
-            min-width: 80px; z-index: 10;
-        }
-
-        .panel-label { font-size: 12px; color: #636e72; text-transform: uppercase; font-weight: 900; }
-        .panel-value { font-size: 20px; color: var(--text-dark); font-weight: 900; }
-        #next-item-box { width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; font-size: 28px; }
-
-        .canvas-wrapper {
-            flex-grow: 1; position: relative;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(200, 230, 255, 0.2) 100%);
-            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1) inset, 0 8px 25px rgba(0,0,0,0.1);
-            border: 3px solid rgba(255,255,255,0.9); backdrop-filter: blur(10px);
-            overflow: hidden; display: flex; justify-content: center; align-items: center;
-        }
-
-        /* SVG Tự thiết kế - Logo Thương hiệu nổi bật & xịn xò */
-        .brand-logo-svg {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 80%; max-width: 300px;
-            transform: translate(-50%, -50%);
-            opacity: 0.35; /* Làm mờ vừa đủ để chìm dưới các vật phẩm */
-            pointer-events: none;
-            z-index: 0;
-            animation: floatLogo 6s ease-in-out infinite;
-        }
-
-        canvas {
-            display: block; width: 100%; height: 100%; border-radius: 17px;
-            touch-action: none; position: relative; z-index: 1;
-            background: transparent; 
-        }
-
-        .controls { display: flex; justify-content: center; margin-top: 15px; z-index: 10; }
-        button {
-            background: #fff; border: none; padding: 12px 30px; font-size: 16px; font-family: inherit; font-weight: 900;
-            color: var(--text-dark); border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.1s, background 0.2s;
-        }
-        button:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        button.primary-btn { background: linear-gradient(to right, #a1c4fd, #fbc2eb); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);}
-
+        /* Modal Styles */
         .modal {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
@@ -187,11 +202,12 @@
             background: #fff; padding: 30px; border-radius: 25px; text-align: center;
             box-shadow: 0 15px 35px rgba(0,0,0,0.2); transform: translateY(20px);
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            width: 85%; max-width: 320px; max-height: 90%; overflow-y: auto;
+            width: 85%; max-width: 350px; max-height: 90%; overflow-y: auto;
         }
         .modal.active .modal-content { transform: translateY(0); }
         .modal h2 { color: var(--text-dark); margin-bottom: 10px; font-size: 26px; }
         .modal p { color: #636e72; margin-bottom: 15px; font-size: 14px; }
+        
         .rainbow-text {
             background: linear-gradient(to right, #ff7675, #fdcb6e, #55efc4, #74b9ff, #a29bfe);
             -webkit-background-clip: text; color: transparent; font-weight: 900;
@@ -215,11 +231,26 @@
         .lb-name { font-weight: 700; color: #636e72; }
         .lb-score { font-weight: 900; color: #a1c4fd; }
 
-        @media (max-width: 768px) {
-            body { padding: 10px; align-items: flex-start; }
-            .app-wrapper { flex-direction: column; align-items: center; }
-            #game-container { height: 75vh; min-height: 500px; }
-            .evo-panel { width: 100%; max-width: 400px; height: auto; min-height: 300px; margin-bottom: 30px;}
+        /* Media Queries cho Mobile */
+        @media (max-width: 1023px) {
+            .app-wrapper { align-items: center; }
+            .evo-panel { max-width: 100%; max-height: 350px; }
+            .title { position: static; text-align: left; width: auto; font-size: 24px; text-shadow: none; margin-bottom: 5px; }
+            .header { flex-wrap: wrap; justify-content: space-around; }
+            .music-btn { position: static; margin-bottom: 5px; }
+        }
+
+        /* Gợi ý người dùng xoay ngang điện thoại (Tuỳ chọn) */
+        @media (max-width: 768px) and (orientation: portrait) {
+            .canvas-wrapper {
+                /* Dù dọc vẫn giữ tỷ lệ ngang để chơi */
+                aspect-ratio: 16 / 10; 
+            }
+            body::before {
+                content: "Gợi ý: Xoay ngang điện thoại để chơi đã hơn!";
+                display: block; width: 100%; text-align: center; color: #fff;
+                font-weight: bold; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
         }
 
     </style>
@@ -229,22 +260,23 @@
 <div class="app-wrapper">
     <!-- KHUNG GAME CHÍNH -->
     <div id="game-container">
-        <div class="title">Sky Garden</div>
-        <button id="music-btn" class="music-btn" onclick="toggleBGM()">🎵</button>
-        
         <div class="header">
-            <div class="panel">
-                <div class="panel-label">Score</div>
-                <div class="panel-value" id="score-display">0</div>
-            </div>
-            <div class="panel">
-                <div class="panel-label">Next</div>
-                <div id="next-item-box">🌱</div>
+            <div class="title">Sky Garden</div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="panel">
+                    <div class="panel-label">Score</div>
+                    <div class="panel-value" id="score-display">0</div>
+                </div>
+                <div class="panel">
+                    <div class="panel-label">Next</div>
+                    <div id="next-item-box">🌱</div>
+                </div>
+                <button id="music-btn" class="music-btn" onclick="toggleBGM()">🎵</button>
             </div>
         </div>
 
         <div class="canvas-wrapper" id="canvas-wrapper">
-            <!-- 🎨 LOGO THƯƠNG HIỆU TỰ THIẾT KẾ BẰNG SVG (GIỐNG HỆT ẢNH BẠN GỬI) -->
+            <!-- LOGO THƯƠNG HIỆU (Căn giữa ngang) -->
             <svg class="brand-logo-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <radialGradient id="glass" cx="40%" cy="30%" r="60%">
@@ -264,15 +296,11 @@
                     </radialGradient>
                 </defs>
 
-                <!-- Quả cầu pha lê (Bubble) -->
                 <circle cx="150" cy="110" r="95" fill="url(#glass)" stroke="rgba(255,255,255,0.9)" stroke-width="4"/>
                 <circle cx="150" cy="110" r="95" fill="none" stroke="#fbc2eb" stroke-width="6" filter="blur(6px)" opacity="0.6"/>
-
-                <!-- Đám mây (Cloud) -->
                 <path d="M110 75 Q110 50 135 50 Q150 25 170 50 Q195 50 195 75 Z" fill="#fff" opacity="0.95"/>
                 <path d="M115 75 Q115 55 135 55 Q150 35 165 55 Q185 55 185 75 Z" fill="#fbc2eb" opacity="0.4"/>
 
-                <!-- Bông hoa (Flower) -->
                 <g transform="translate(150, 85)">
                     <circle cx="0" cy="-12" r="7" fill="#f1c40f"/>
                     <circle cx="11" cy="-4" r="7" fill="#f1c40f"/>
@@ -282,19 +310,13 @@
                     <circle cx="0" cy="0" r="8" fill="#f39c12"/>
                 </g>
 
-                <!-- Hạt giống xanh (Green Seed Bubble) -->
                 <circle cx="115" cy="130" r="28" fill="url(#seedGrad)" stroke="rgba(255,255,255,0.6)" stroke-width="3"/>
                 <path d="M105 130 Q115 115 125 130 M115 115 L115 140" stroke="#1b4d3e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-
-                <!-- Ngọc Cầu Vồng (Rainbow Orb) -->
                 <circle cx="155" cy="145" r="22" fill="url(#orb)" stroke="#fff" stroke-width="2"/>
-
-                <!-- Mầm cây xanh (Plant Sprout) -->
                 <path d="M175 155 Q160 120 195 105 Q185 135 175 155 Z" fill="#00b894"/>
                 <path d="M175 155 Q155 135 140 125 Q155 145 175 155 Z" fill="#55efc4"/>
                 <path d="M175 155 L175 175" stroke="#00b894" stroke-width="4" stroke-linecap="round"/>
 
-                <!-- Typography - Chữ viền đậm như logo gốc -->
                 <text x="150" y="240" font-family="'Nunito', sans-serif" font-weight="900" font-size="34" fill="#fff" text-anchor="middle" stroke="#a1c4fd" stroke-width="9" paint-order="stroke" stroke-linejoin="round">SKY GARDEN</text>
                 <text x="150" y="280" font-family="'Nunito', sans-serif" font-weight="900" font-size="32" fill="#fff" text-anchor="middle" stroke="#fbc2eb" stroke-width="9" paint-order="stroke" stroke-linejoin="round">MERGE</text>
             </svg>
@@ -305,17 +327,17 @@
             <div class="modal active" id="start-modal">
                 <div class="modal-content">
                     <h2 class="rainbow-text">Sky Garden</h2>
-                    <p>Trồng cây, ghép hạt, và khám phá<br>Cây Sinh Mệnh tối thượng!</p>
+                    <p>Chế độ màn hình ngang (Landscape)<br>Ghép hạt và khám phá Cây Tối Thượng!</p>
                     
                     <input type="text" id="player-name-input" class="custom-input" placeholder="Nhập tên của bạn..." maxlength="12">
                     
                     <select id="diff-select" class="custom-input">
-                        <option value="easy">🌟 Mức Dễ (Có chỉ dẫn, Ít nảy)</option>
-                        <option value="normal" selected>🎯 Bình thường (Chuẩn)</option>
-                        <option value="hard">🔥 Mức Khó (Cây nảy mạnh, Ẩn vạch)</option>
+                        <option value="easy">🌟 Mức Dễ (Ít nảy)</option>
+                        <option value="normal" selected>🎯 Bình thường</option>
+                        <option value="hard">🔥 Mức Khó (Nảy mạnh)</option>
                     </select>
 
-                    <button class="primary-btn" onclick="startGame()" style="width: 100%;">Bắt đầu trồng cây</button>
+                    <button class="primary-btn" onclick="startGame()" style="width: 100%;">Bắt đầu</button>
                 </div>
             </div>
 
@@ -357,29 +379,30 @@
 
 <script>
     /* ==========================================
-       HỆ THỐNG CẤP ĐỘ VẬT PHẨM (11 CẤP)
+       HỆ THỐNG CẤP ĐỘ VẬT PHẨM
        ========================================== */
     const LEVELS = [
-        { level: 1, name: "Hạt giống", icon: "🌱", color: "#b5e7a0", radius: 14, mass: 1, points: 2 },
-        { level: 2, name: "Mầm cây", icon: "🌿", color: "#86e3ce", radius: 20, mass: 2, points: 4 },
-        { level: 3, name: "Cây non", icon: "🍀", color: "#d0e6a5", radius: 27, mass: 4, points: 8 },
-        { level: 4, name: "Hoa nhỏ", icon: "🌼", color: "#ffdd94", radius: 36, mass: 8, points: 16 },
-        { level: 5, name: "Hoa lớn", icon: "🌺", color: "#fa897b", radius: 47, mass: 16, points: 32 },
-        { level: 6, name: "Cây trưởng thành", icon: "🌳", color: "#ccabd8", radius: 60, mass: 32, points: 64 },
-        { level: 7, name: "Cây cổ thụ", icon: "🌲", color: "#86af49", radius: 76, mass: 64, points: 128 },
-        { level: 8, name: "Cây thần", icon: "🌈", color: "#b39cd0", radius: 95, mass: 128, points: 256 },
-        { level: 9, name: "Cây Pha Lê", icon: "🔮", color: "#74b9ff", radius: 118, mass: 256, points: 512 },
-        { level: 10, name: "Cây Vũ Trụ", icon: "🌌", color: "#0984e3", radius: 145, mass: 512, points: 1024 },
-        { level: 11, name: "Cây Sinh Mệnh", icon: "👑", color: "#fdcb6e", radius: 175, mass: 1024, points: 2048 }
+        { level: 1, name: "Hạt giống", icon: "🌱", color: "#b5e7a0", radius: 18, mass: 1, points: 2 },
+        { level: 2, name: "Mầm cây", icon: "🌿", color: "#86e3ce", radius: 26, mass: 2, points: 4 },
+        { level: 3, name: "Cây non", icon: "🍀", color: "#d0e6a5", radius: 36, mass: 4, points: 8 },
+        { level: 4, name: "Hoa nhỏ", icon: "🌼", color: "#ffdd94", radius: 48, mass: 8, points: 16 },
+        { level: 5, name: "Hoa lớn", icon: "🌺", color: "#fa897b", radius: 62, mass: 16, points: 32 },
+        { level: 6, name: "Cây trưởng thành", icon: "🌳", color: "#ccabd8", radius: 80, mass: 32, points: 64 },
+        { level: 7, name: "Cây cổ thụ", icon: "🌲", color: "#86af49", radius: 100, mass: 64, points: 128 },
+        { level: 8, name: "Cây thần", icon: "🌈", color: "#b39cd0", radius: 125, mass: 128, points: 256 },
+        { level: 9, name: "Cây Pha Lê", icon: "🔮", color: "#74b9ff", radius: 155, mass: 256, points: 512 },
+        { level: 10, name: "Cây Vũ Trụ", icon: "🌌", color: "#0984e3", radius: 190, mass: 512, points: 1024 },
+        { level: 11, name: "Cây Sinh Mệnh", icon: "👑", color: "#fdcb6e", radius: 230, mass: 1024, points: 2048 }
     ];
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const wrapper = document.getElementById('canvas-wrapper');
 
-    const LOGICAL_WIDTH = 400;
-    const LOGICAL_HEIGHT = 600;
-    const GAME_OVER_LINE = 100;
+    /* Đổi sang kích thước MÀN HÌNH NGANG (Landscape 16:10) */
+    const LOGICAL_WIDTH = 1120;
+    const LOGICAL_HEIGHT = 700;
+    const GAME_OVER_LINE = 120; 
 
     let scaleRatio = 1;
     let canvasRect;
@@ -391,25 +414,27 @@
     let canDrop = true, hasReachedMax = false; 
 
     let playerName = "Khách";
-    let leaderboardData = JSON.parse(localStorage.getItem('skyGardenLB_V3')) || [];
+    let leaderboardData = JSON.parse(localStorage.getItem('skyGardenLB_Landscape')) || [];
     let screenShake = 0;
 
     const sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
     let bgmCtx = null, isBgmPlaying = true, bgmTimer = null;
     let melodyIndex = 0;
 
+    // Tính toán lại tọa độ khi màn hình thay đổi kích thước
     function resizeCanvas() {
-        wrapper.getBoundingClientRect();
         canvas.width = LOGICAL_WIDTH;
         canvas.height = LOGICAL_HEIGHT;
         canvasRect = canvas.getBoundingClientRect();
-        scaleRatio = canvas.width / canvasRect.width;
+        scaleRatio = LOGICAL_WIDTH / canvasRect.width;
     }
     window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    
+    // Gọi setTimeout để đảm bảo CSS render xong trước khi lấy Rect
+    setTimeout(resizeCanvas, 100);
 
     function initApp() {
-        let savedName = localStorage.getItem('skyGardenName');
+        let savedName = localStorage.getItem('skyGardenName_LS');
         if(savedName) document.getElementById('player-name-input').value = savedName;
         updateLeaderboardUI();
         renderEvolutionPanel();
@@ -424,7 +449,7 @@
                 <div class="evo-icon" style="background: ${lvl.color}">${lvl.icon}</div>
                 <div class="evo-info">
                     <div class="evo-name">${lvl.name}</div>
-                    <div class="evo-pts">+${lvl.points} Điểm (Cấp ${lvl.level})</div>
+                    <div class="evo-pts">+${lvl.points} Điểm</div>
                 </div>
             </div>`;
         });
@@ -440,8 +465,8 @@
 
     function startGame() {
         let inputName = document.getElementById('player-name-input').value.trim();
-        playerName = inputName !== "" ? inputName : "Người Ẩn Danh";
-        localStorage.setItem('skyGardenName', playerName);
+        playerName = inputName !== "" ? inputName : "Nông dân Vui Vẻ";
+        localStorage.setItem('skyGardenName_LS', playerName);
         
         let diffMode = document.getElementById('diff-select').value;
         if(diffMode === 'easy') gameConfig = { bounce: 0.15, showGuide: true };
@@ -465,7 +490,7 @@
             leaderboardData.push({ name: playerName, score: score });
             leaderboardData.sort((a, b) => b.score - a.score);
             leaderboardData = leaderboardData.slice(0, 5);
-            localStorage.setItem('skyGardenLB_V3', JSON.stringify(leaderboardData));
+            localStorage.setItem('skyGardenLB_Landscape', JSON.stringify(leaderboardData));
         }
         updateLeaderboardUI();
     }
@@ -484,9 +509,6 @@
         list.innerHTML = html;
     }
 
-    /* ==========================================
-       HỆ THỐNG ÂM THANH - NHẠC VUI TƯƠI, NHỘN NHỊP
-       ========================================== */
     function playSFX(level) {
         if (!sfxCtx || sfxCtx.state !== 'running') return;
         try {
@@ -504,12 +526,11 @@
         } catch(e) {}
     }
 
-    // Nhạc nền Arpeggio vui nhộn (Upbeat / 8-bit style)
     const happyMelody = [
-        { n: 523.25, d: 200 }, { n: 659.25, d: 200 }, { n: 783.99, d: 200 }, { n: 659.25, d: 200 }, // C E G E
-        { n: 880.00, d: 400 }, { n: 783.99, d: 400 }, // A G (long)
-        { n: 523.25, d: 200 }, { n: 587.33, d: 200 }, { n: 659.25, d: 200 }, { n: 587.33, d: 200 }, // C D E D
-        { n: 523.25, d: 600 }, { n: 0, d: 200 } // C (long) + Rest
+        { n: 523.25, d: 200 }, { n: 659.25, d: 200 }, { n: 783.99, d: 200 }, { n: 659.25, d: 200 },
+        { n: 880.00, d: 400 }, { n: 783.99, d: 400 },
+        { n: 523.25, d: 200 }, { n: 587.33, d: 200 }, { n: 659.25, d: 200 }, { n: 587.33, d: 200 },
+        { n: 523.25, d: 600 }, { n: 0, d: 200 }
     ];
 
     function startAmbientBGM() {
@@ -520,36 +541,22 @@
 
     function playNextNote() {
         if(!isBgmPlaying) return;
-        
         let noteObj = happyMelody[melodyIndex];
-        
         if (noteObj.n > 0) {
             let osc = bgmCtx.createOscillator();
             let gain = bgmCtx.createGain();
-
-            // Sóng Square tạo cảm giác nhạc game chiptune/nhộn nhịp
             osc.type = 'square';
             osc.frequency.value = noteObj.n;
-
-            // Plucky Envelope
             gain.gain.setValueAtTime(0, bgmCtx.currentTime);
             gain.gain.linearRampToValueAtTime(0.05, bgmCtx.currentTime + 0.02);
             gain.gain.exponentialRampToValueAtTime(0.001, bgmCtx.currentTime + (noteObj.d / 1000) * 0.8);
-
-            // Filter để bớt chói tai
             let filter = bgmCtx.createBiquadFilter();
             filter.type = 'lowpass';
             filter.frequency.setValueAtTime(1000, bgmCtx.currentTime);
             filter.frequency.exponentialRampToValueAtTime(400, bgmCtx.currentTime + 0.1);
-
-            osc.connect(filter);
-            filter.connect(gain);
-            gain.connect(bgmCtx.destination);
-
-            osc.start();
-            osc.stop(bgmCtx.currentTime + (noteObj.d / 1000));
+            osc.connect(filter); filter.connect(gain); gain.connect(bgmCtx.destination);
+            osc.start(); osc.stop(bgmCtx.currentTime + (noteObj.d / 1000));
         }
-
         melodyIndex = (melodyIndex + 1) % happyMelody.length;
         bgmTimer = setTimeout(playNextNote, noteObj.d);
     }
@@ -571,7 +578,6 @@
         let R = parseInt(color.substring(1,3),16), G = parseInt(color.substring(3,5),16), B = parseInt(color.substring(5,7),16);
         R = parseInt(R * (100 + percent) / 100); G = parseInt(G * (100 + percent) / 100); B = parseInt(B * (100 + percent) / 100);
         R = (R<255)?R:255; G = (G<255)?G:255; B = (B<255)?B:255;  
-        R = Math.max(0, R); G = Math.max(0, G); B = Math.max(0, B);
         let RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
         let GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
         let BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
@@ -699,7 +705,7 @@
 
     function createCurrentDropItem() {
         let radius = LEVELS[nextItemLevel].radius;
-        currentDropItem = new Body(Math.max(radius, Math.min(LOGICAL_WIDTH - radius, mouseX)), 40, nextItemLevel); currentDropItem.vy = 0;
+        currentDropItem = new Body(Math.max(radius, Math.min(LOGICAL_WIDTH - radius, mouseX)), 50, nextItemLevel); currentDropItem.vy = 0;
     }
 
     function dropItem() {
@@ -711,7 +717,8 @@
     function updateMousePos(e) {
         if (gameState !== 'PLAYING') return;
         let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        canvasRect = canvas.getBoundingClientRect(); scaleRatio = LOGICAL_WIDTH / canvasRect.width;
+        canvasRect = canvas.getBoundingClientRect(); 
+        scaleRatio = LOGICAL_WIDTH / canvasRect.width;
         targetMouseX = (clientX - canvasRect.left) * scaleRatio;
     }
 
@@ -747,7 +754,8 @@
         if (gameState === 'PLAYING') mouseX += (targetMouseX - mouseX) * 0.15;
         if (currentDropItem) {
             let r = currentDropItem.radius;
-            currentDropItem.x = Math.max(r, Math.min(LOGICAL_WIDTH - r, mouseX)); currentDropItem.y = 40 + Math.sin(Date.now() / 300) * 4;
+            currentDropItem.x = Math.max(r, Math.min(LOGICAL_WIDTH - r, mouseX)); 
+            currentDropItem.y = 50 + Math.sin(Date.now() / 300) * 4;
         }
 
         ctx.save();
@@ -782,7 +790,10 @@
             }
 
             ctx.globalAlpha = 1.0; let nextDef = LEVELS[nextItemLevel]; let nextRadius = 24; 
-            let nx = currentDropItem.x + currentDropItem.radius + 35; if (nx + nextRadius > LOGICAL_WIDTH - 10) nx = currentDropItem.x - currentDropItem.radius - 35;
+            
+            // Vẽ nút next linh hoạt sang hai bên để không bị ra ngoài màn hình ngang
+            let nx = currentDropItem.x + currentDropItem.radius + 45; 
+            if (nx + nextRadius > LOGICAL_WIDTH - 20) nx = currentDropItem.x - currentDropItem.radius - 45;
             let ny = currentDropItem.y + Math.sin(Date.now() / 250) * 3;
             
             ctx.beginPath(); ctx.arc(nx, ny + 5, nextRadius + 6, 0, Math.PI * 2); ctx.fillStyle = "rgba(255, 255, 255, 0.75)"; ctx.shadowColor = "rgba(0,0,0,0.1)"; ctx.shadowBlur = 10; ctx.fill(); ctx.shadowBlur = 0;
