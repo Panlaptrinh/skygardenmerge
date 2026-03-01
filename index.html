@@ -32,13 +32,11 @@
             -webkit-touch-callout: none;
         }
 
-        /* Mở khóa nhập liệu cho input */
         input, select {
             user-select: auto !important;
             -webkit-user-select: auto !important;
         }
 
-        /* Khóa chặt màn hình để không bị lẹm thanh địa chỉ */
         body, html {
             width: 100vw;
             height: 100dvh; 
@@ -50,25 +48,31 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* BỐ CỤC CHÍNH */
         #game-root {
             display: flex;
             width: 100%;
             height: 100dvh;
             padding: 8px;
             gap: 8px;
-            flex-direction: column; /* Mặc định dọc */
+            flex-direction: column;
             transition: all 0.3s;
         }
 
-        /* Khu vực HUD ở trên cùng */
+        /* SIDEBAR (Trên cùng ở Dọc, Bên trái/phải ở Ngang) */
+        .right-sidebar {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
         .top-panel {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: stretch;
             width: 100%;
-            gap: 10px;
-            flex-shrink: 0;
+            gap: 8px;
         }
         
         .hud-box {
@@ -80,20 +84,85 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             backdrop-filter: blur(5px);
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .hud-label { font-size: 10px; color: #636e72; text-transform: uppercase; font-weight: 900; }
         .hud-value { font-size: 20px; font-weight: 900; color: var(--text-dark); }
 
-        .tools { display: flex; gap: 8px; }
+        .tools { display: flex; flex-direction: column; justify-content: space-between; gap: 4px; }
         .icon-btn {
             background: linear-gradient(135deg, #74b9ff, #0984e3); color: white;
             border: 2px solid #fff; border-radius: 50%;
-            width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;
-            font-size: 18px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            width: 32px; height: 32px; display: flex; justify-content: center; align-items: center;
+            font-size: 14px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         .icon-btn:active { transform: scale(0.9); }
 
-        /* Khu vực Canvas (Chiếm tối đa không gian) */
+        /* QUYỀN TRỢ GIÚP POWERUPS - NÂNG CẤP GIAO DIỆN PREMIUM */
+        .powerups-panel {
+            display: flex;
+            width: 100%;
+            gap: 5px;
+            justify-content: space-around;
+        }
+        .pu-btn {
+            background: transparent;
+            border: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            cursor: pointer;
+            transition: transform 0.1s, filter 0.2s;
+        }
+        .pu-btn:active { transform: scale(0.9); }
+        .pu-btn.disabled { opacity: 0.6; filter: grayscale(1); pointer-events: none; }
+        
+        .pu-icon-wrapper {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 22px;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.6);
+            margin-bottom: 4px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .bg-wildcard { background: radial-gradient(circle at 30% 30%, #ff9a9e, #fecfef); border-color: #ffd32a; }
+        .bg-reroll { background: radial-gradient(circle at 30% 30%, #84fab0, #8fd3f4); border-color: #00cec9; }
+        .bg-delete { background: radial-gradient(circle at 30% 30%, #fab1a0, #ff7675); border-color: #ff7675; }
+
+        .pu-btn.active .pu-icon-wrapper {
+            border-color: #ff4757;
+            box-shadow: 0 0 15px #ff4757, inset 0 0 10px #ff4757;
+            animation: puPulse 1s infinite;
+        }
+        
+        @keyframes puPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .pu-name { 
+            font-size: 10px; font-weight: 900; color: #2d3436; 
+            white-space: nowrap; text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+        }
+        
+        .pu-cost-badge {
+            font-size: 10px; font-weight: 900; color: #fff;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 2px 8px; border-radius: 12px; margin-top: 2px;
+            display: flex; align-items: center; gap: 3px;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Canvas Panel */
         .center-panel {
             flex: 1;
             width: 100%;
@@ -101,21 +170,24 @@
             justify-content: center;
             align-items: center;
             position: relative;
-            min-height: 0; /* Quan trọng để flexbox không đẩy tràn màn hình */
+            min-height: 0; 
             min-width: 0;
             padding: 2px;
         }
         
-        /* KHUNG KÍNH CHỨA GAME - KHÔNG DÙNG BORDER ĐỂ TRÁNH LỆCH PIXEL */
         .canvas-container {
             position: relative;
             width: 100%; 
             height: 100%;
             border-radius: 15px;
             background: linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
-            /* Dùng inner box-shadow thay cho border để kích thước thực luôn chuẩn xác */
             box-shadow: inset 0 0 0 4px rgba(255,255,255,0.9), inset 0 0 15px rgba(255,255,255,0.5), 0 5px 20px rgba(0,0,0,0.15);
             overflow: hidden;
+            transition: box-shadow 0.3s;
+        }
+        .canvas-container.targeting {
+            box-shadow: inset 0 0 0 4px #ff7675, inset 0 0 30px rgba(255, 118, 117, 0.4), 0 5px 20px rgba(255, 118, 117, 0.3);
+            cursor: crosshair;
         }
         
         canvas {
@@ -127,10 +199,10 @@
             height: 100%;
             touch-action: none; 
             z-index: 10;
-            background: transparent; /* Để SVG background hiện lên */
+            background: transparent; 
         }
 
-        /* Lộ trình tiến hóa (Nằm ngang dưới đáy khi ở Portrait) */
+        /* Lộ trình tiến hóa */
         .evo-panel {
             display: flex;
             align-items: center;
@@ -158,21 +230,13 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             position: relative;
         }
-
-        /* SỬA LỖI MŨI TÊN CHỈ HƯỚNG BẢNG TIẾN HÓA */
-        /* Mặc định cầm dọc (Portrait): Lộ trình nằm ngang -> Mũi tên chỉ ngang */
         .evo-bubble:not(:last-child)::after {
             content: "▶";
-            position: absolute;
-            right: -13px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255,255,255,0.9);
-            font-size: 10px;
-            font-weight: bold;
+            position: absolute; right: -13px; top: 50%; transform: translateY(-50%);
+            color: rgba(255,255,255,0.9); font-size: 10px; font-weight: bold;
         }
 
-        /* --- MÀN HÌNH NGANG (LANDSCAPE) SẼ CHUYỂN SANG 3 CỘT --- */
+        /* RESPONSIVE LANDSCAPE */
         @media screen and (orientation: landscape) {
             #game-root { flex-direction: row; }
             
@@ -182,26 +246,31 @@
             }
             .evo-title { margin-right: 0; margin-bottom: 15px; text-align: center; }
             .evolution-list { flex-direction: column-reverse; gap: 18px; } 
-
-            /* Màn hình ngang: Lộ trình dọc từ dưới lên -> Mũi tên chỉ lên */
             .evo-bubble:not(:last-child)::after {
-                content: "▲";
-                position: absolute;
-                top: -15px;
-                right: auto;
-                left: 50%;
-                transform: translateX(-50%) translateY(0);
+                content: "▲"; position: absolute; top: -15px; right: auto; left: 50%; transform: translateX(-50%) translateY(0);
             }
 
+            .right-sidebar {
+                width: 100px; height: 100%; justify-content: space-between;
+            }
             .top-panel {
                 flex-direction: column; width: 100px; height: 100%;
                 justify-content: center; gap: 15px;
             }
             .hud-box { width: 100%; padding: 10px 5px; }
-            .tools { flex-direction: column; margin-top: auto; }
+            .tools { flex-direction: row; width: 100%; justify-content: space-around; }
+            .icon-btn { width: 38px; height: 38px; font-size: 16px;}
+            
+            /* Tinh chỉnh Icon Trợ Giúp khi xoay ngang */
+            .powerups-panel {
+                flex-direction: column; width: 100%; gap: 12px; align-items: center;
+            }
+            .pu-icon-wrapper { width: 48px; height: 48px; font-size: 26px; margin-bottom: 2px; }
+            .pu-name { font-size: 11px; }
+            .pu-cost-badge { font-size: 11px; padding: 3px 8px; }
         }
 
-        /* SVG Background Logo chìm trong game */
+        /* SVG Background Logo */
         .brand-logo-svg {
             position: absolute; top: 50%; left: 50%;
             width: 70%; max-width: 250px; transform: translate(-50%, -50%);
@@ -225,12 +294,8 @@
             text-transform: uppercase; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             animation: pulse-warning 2s infinite; z-index: 6; position: absolute;
         }
-        @keyframes pulse-warning {
-            0%, 100% { opacity: 0.8; transform: scale(0.95); }
-            50% { opacity: 1; transform: scale(1.05); }
-        }
 
-        /* MODAL CÀI ĐẶT */
+        /* MODAL */
         .modal {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
             background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); 
@@ -288,27 +353,47 @@
 
 <div id="game-root">
     
-    <!-- HUD CHUNG -->
-    <div class="top-panel">
-        <div class="hud-box">
-            <div class="hud-label">Điểm số</div>
-            <div class="hud-value" id="score-display">0</div>
-        </div>
-        
-        <div class="hud-box">
-            <div class="hud-label">Tiếp theo</div>
-            <div id="next-item-preview" style="font-size:26px; margin-top:4px;">🌱</div>
+    <div class="right-sidebar">
+        <!-- HUD CHUNG -->
+        <div class="top-panel">
+            <div class="hud-box">
+                <div class="hud-label">Điểm số</div>
+                <div class="hud-value" id="score-display">0</div>
+            </div>
+            
+            <div class="hud-box">
+                <div class="hud-label">Tiếp theo</div>
+                <div id="next-item-preview" style="font-size:24px; margin-top:4px;">🌱</div>
+            </div>
+
+            <div class="tools">
+                <button class="icon-btn" onclick="toggleBGM()" id="music-btn">🎵</button>
+                <button class="icon-btn" onclick="showStartModal()">⚙️</button>
+            </div>
         </div>
 
-        <div class="tools">
-            <button class="icon-btn" onclick="toggleBGM()" id="music-btn">🎵</button>
-            <button class="icon-btn" onclick="showStartModal()">⚙️</button>
+        <!-- QUYỀN TRỢ GIÚP (POWER-UPS) -->
+        <div class="powerups-panel">
+            <div class="pu-btn disabled" id="pu-wildcard" onclick="buyWildcard()">
+                <div class="pu-icon-wrapper bg-wildcard">🌟</div>
+                <div class="pu-name">Vạn Năng</div>
+                <div class="pu-cost-badge">💎 200</div>
+            </div>
+            <div class="pu-btn disabled" id="pu-reroll" onclick="buyReroll()">
+                <div class="pu-icon-wrapper bg-reroll">🔄</div>
+                <div class="pu-name">Đổi Ngọc</div>
+                <div class="pu-cost-badge">💎 50</div>
+            </div>
+            <div class="pu-btn disabled" id="pu-delete" onclick="buyDelete()">
+                <div class="pu-icon-wrapper bg-delete">🔨</div>
+                <div class="pu-name">Xóa Ngọc</div>
+                <div class="pu-cost-badge">💎 100</div>
+            </div>
         </div>
     </div>
 
     <!-- KHUNG GAME CHÍNH -->
     <main class="center-panel" id="center-panel">
-        <!-- Khung kính bọc trọn gói Canvas và SVG -->
         <div class="canvas-container" id="canvas-wrapper">
             
             <svg class="brand-logo-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
@@ -402,7 +487,6 @@
 </div>
 
 <script>
-    // TĂNG ĐỘ KHÓ: Kích thước các vật phẩm được tăng lên đáng kể để nhanh lấp đầy màn hình hơn
     const LEVELS = [
         { level: 1, name: "Hạt giống", icon: "🌱", color: "#b5e7a0", radius: 28, mass: 1, points: 2 },
         { level: 2, name: "Mầm cây", icon: "🌿", color: "#86e3ce", radius: 40, mass: 2, points: 4 },
@@ -422,12 +506,11 @@
     const wrapper = document.getElementById('canvas-wrapper');
     const centerPanel = document.getElementById('center-panel');
 
-    // Thiết lập vùng LOGIC độc lập
     const LOGICAL_MIN = 1000;
     let LOGICAL_WIDTH = 1000;
     let LOGICAL_HEIGHT = 1000; 
     let GAME_OVER_LINE = 150; 
-    let dangerLinePercent = 0.18; // Tỷ lệ chiều cao vạch chết
+    let dangerLinePercent = 0.18; 
 
     let scale = 1; 
     let canvasRect;
@@ -439,6 +522,9 @@
     let canDrop = true; 
     let playerName = "Người Chơi";
     
+    // Trạng thái kỹ năng
+    let isTargetingDelete = false;
+
     let globalLeaderboard = JSON.parse(localStorage.getItem('skyGardenGH_v7')) || [];
     const sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
     let isBgmPlaying = false; 
@@ -536,7 +622,6 @@
         
         scale = finalWidth / LOGICAL_WIDTH;
         
-        // Điều chỉnh vạch chết theo độ khó
         GAME_OVER_LINE = LOGICAL_HEIGHT * dangerLinePercent;
         let dangerUi = document.getElementById('danger-ui');
         if(dangerUi) {
@@ -546,14 +631,88 @@
         canvasRect = wrapper.getBoundingClientRect();
     }
 
-    function getLogicalMousePos(clientX) {
-        if(!canvasRect) return LOGICAL_WIDTH / 2;
+    function getLogicalMousePos(clientX, clientY = 0) {
+        if(!canvasRect) return {x: LOGICAL_WIDTH / 2, y: 0};
         let relativeX = clientX - canvasRect.left;
-        return relativeX / scale;
+        let relativeY = clientY - canvasRect.top;
+        return {
+            x: relativeX / scale,
+            y: relativeY / scale
+        };
     }
+
+    // --- HỆ THỐNG QUYỀN TRỢ GIÚP ---
+    function checkPowerups() {
+        let elW = document.getElementById('pu-wildcard');
+        let elR = document.getElementById('pu-reroll');
+        let elD = document.getElementById('pu-delete');
+        
+        let canW = score >= 200 && !isTargetingDelete && currentDropItem && !currentDropItem.isWildcard;
+        let canR = score >= 50 && !isTargetingDelete && currentDropItem && !currentDropItem.isWildcard;
+        let canD = score >= 100;
+
+        if(elW) elW.classList.toggle('disabled', !canW);
+        if(elR) elR.classList.toggle('disabled', !canR);
+        if(elD) elD.classList.toggle('disabled', !canD);
+    }
+
+    function addScore(points) {
+        score += points; 
+        document.getElementById('score-display').innerText = score;
+        checkPowerups();
+    }
+
+    function buyWildcard() {
+        if (score < 200 || gameState !== 'PLAYING' || !currentDropItem || isTargetingDelete || currentDropItem.isWildcard) return;
+        score -= 200;
+        addScore(0);
+        
+        currentDropItem.isWildcard = true;
+        currentDropItem.icon = "🌟";
+        currentDropItem.radius = LEVELS[0].radius; // Thu nhỏ lại thành dạng Sao
+        currentDropItem.mass = 1;
+        playSFX(10); 
+        checkPowerups();
+    }
+
+    function buyReroll() {
+        if (score < 50 || gameState !== 'PLAYING' || !currentDropItem || isTargetingDelete || currentDropItem.isWildcard) return;
+        score -= 50;
+        addScore(0);
+        
+        // Đổi ngẫu nhiên từ cấp 1 đến cấp 4 (Hoa nhỏ)
+        let newLevel = Math.floor(Math.random() * 4); 
+        
+        let oldX = currentDropItem.x;
+        currentDropItem = new Body(oldX, GAME_OVER_LINE - LEVELS[newLevel].radius - 15, newLevel);
+        currentDropItem.spawnScale = 1; 
+        playSFX(2);
+        checkPowerups();
+    }
+
+    function buyDelete() {
+        if (score < 100 || gameState !== 'PLAYING') return;
+        
+        if (isTargetingDelete) {
+            // Hủy chọn
+            isTargetingDelete = false;
+            document.getElementById('pu-delete').classList.remove('active');
+            document.getElementById('canvas-wrapper').classList.remove('targeting');
+            checkPowerups();
+            return;
+        }
+        
+        isTargetingDelete = true;
+        document.getElementById('pu-delete').classList.add('active');
+        document.getElementById('canvas-wrapper').classList.add('targeting');
+        checkPowerups();
+    }
+    // --------------------------------
 
     function showStartModal() {
         gameState = 'START';
+        isTargetingDelete = false;
+        document.getElementById('canvas-wrapper').classList.remove('targeting');
         document.getElementById('start-modal').classList.add('active');
         document.getElementById('game-over-modal').classList.remove('active');
         loadPlayerData(); 
@@ -565,25 +724,23 @@
         localStorage.setItem('skyGardenNameV7', playerName); 
         
         let diffMode = document.getElementById('diff-select').value;
-        
-        // Tùy chỉnh tham số theo độ khó để cảm giác chơi thay đổi rõ rệt
         if (diffMode === 'easy') {
-            gameConfig.bounce = 0.15;
-            dangerLinePercent = 0.10; // Vạch chết rất cao, nhiều không gian
+            gameConfig.bounce = 0.15; dangerLinePercent = 0.10; 
         } else if (diffMode === 'hard') {
-            gameConfig.bounce = 0.65; // Nảy văng rất mạnh
-            dangerLinePercent = 0.28; // Vạch chết thấp, rất ít không gian
+            gameConfig.bounce = 0.65; dangerLinePercent = 0.28; 
         } else {
-            gameConfig.bounce = 0.40;
-            dangerLinePercent = 0.18;
+            gameConfig.bounce = 0.40; dangerLinePercent = 0.18;
         }
-        resizeCanvas(); // Áp dụng vị trí vạch chết ngay lập tức
+        resizeCanvas();
 
         document.getElementById('start-modal').classList.remove('active');
         
         bodies = []; particles = []; score = 0;
         document.getElementById('score-display').innerText = 0;
         canDrop = true;
+        isTargetingDelete = false;
+        document.getElementById('pu-delete').classList.remove('active');
+        document.getElementById('canvas-wrapper').classList.remove('targeting');
         
         setNextItem();
         mouseX = LOGICAL_WIDTH / 2;
@@ -603,12 +760,13 @@
         let radius = LEVELS[nextItemLevel].radius;
         currentDropItem = new Body(Math.max(radius, Math.min(LOGICAL_WIDTH - radius, mouseX)), GAME_OVER_LINE - radius - 15, nextItemLevel);
         currentDropItem.spawnScale = 1; 
+        checkPowerups();
     }
 
     function handleMove(e) {
-        if (gameState !== 'PLAYING') return;
+        if (gameState !== 'PLAYING' || isTargetingDelete) return;
         let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        let logicalX = getLogicalMousePos(clientX);
+        let logicalX = getLogicalMousePos(clientX).x;
         mouseX += (logicalX - mouseX) * 0.5;
         if(currentDropItem) {
             let r = currentDropItem.radius;
@@ -617,18 +775,46 @@
     }
 
     function handleDrop(e) {
-        if (gameState !== 'PLAYING' || !canDrop || !currentDropItem) return;
+        if (gameState !== 'PLAYING') return;
+
+        // Xử lý khi đang dùng thẻ XÓA NGỌC
+        if (isTargetingDelete) {
+            let clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+            let clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+            let coords = getLogicalMousePos(clientX, clientY);
+            
+            for (let i = bodies.length - 1; i >= 0; i--) {
+                let b = bodies[i];
+                let dx = b.x - coords.x;
+                let dy = b.y - coords.y;
+                if (dx*dx + dy*dy <= b.radius*b.radius) {
+                    spawnParticles(b.x, b.y, b.color, 20);
+                    bodies.splice(i, 1);
+                    score -= 100; // Trừ điểm thực tế
+                    addScore(0);
+                    isTargetingDelete = false;
+                    document.getElementById('pu-delete').classList.remove('active');
+                    document.getElementById('canvas-wrapper').classList.remove('targeting');
+                    playSFX(1);
+                    checkPowerups();
+                    return;
+                }
+            }
+            return; // Nếu bấm trượt ra ngoài thì không mất điểm, vẫn giữ chế độ ngắm
+        }
+
+        if (!canDrop || !currentDropItem) return;
         if(e) handleMove(e); 
         playSFX(0);
         bodies.push(currentDropItem);
         currentDropItem = null;
         canDrop = false;
+        checkPowerups();
         setTimeout(() => { 
             if (gameState === 'PLAYING') { setNextItem(); createCurrentDropItem(); canDrop = true; } 
         }, 800);
     }
 
-    // Touch logic gắn vào wrapper để mượt và chính xác
     wrapper.addEventListener('mousemove', handleMove);
     wrapper.addEventListener('touchmove', (e) => { e.preventDefault(); handleMove(e); }, {passive: false});
     wrapper.addEventListener('mousedown', handleDrop);
@@ -641,12 +827,12 @@
             this.levelIndex = levelIndex; this.radius = def.radius;
             this.mass = def.mass; this.color = def.color; this.icon = def.icon;
             this.markedForMerge = false; this.spawnScale = 0; 
+            this.isWildcard = false;
         }
 
         update() {
             if (this.spawnScale < 1) { this.spawnScale += 0.08; if (this.spawnScale > 1) this.spawnScale = 1; }
             
-            // TĂNG TRỌNG LỰC ĐỂ RƠI NHANH MƯỢT HƠN
             this.vy += 0.8; 
             this.vx *= 0.99; this.vy *= 0.99;
             this.x += this.vx; this.y += this.vy;
@@ -670,7 +856,20 @@
             
             ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = renderRadius * 0.3; ctx.shadowOffsetY = 2;
             ctx.beginPath(); ctx.arc(0, 0, renderRadius, 0, Math.PI * 2); 
-            ctx.fillStyle = this.color; ctx.fill();
+            
+            // Vẽ riêng cho Thẻ Vạn Năng
+            if (this.isWildcard) {
+                let grad = ctx.createRadialGradient(
+                    Math.round(-renderRadius * 0.2), Math.round(-renderRadius * 0.2), Math.round(renderRadius * 0.1), 
+                    0, 0, renderRadius
+                );
+                grad.addColorStop(0, '#fff'); grad.addColorStop(0.3, '#fbc2eb');
+                grad.addColorStop(0.7, '#a1c4fd'); grad.addColorStop(1, '#ff9a9e');
+                ctx.fillStyle = grad;
+            } else {
+                ctx.fillStyle = this.color; 
+            }
+            ctx.fill();
 
             ctx.beginPath(); ctx.ellipse(-renderRadius * 0.2, -renderRadius * 0.3, renderRadius * 0.5, renderRadius * 0.25, -Math.PI / 6, 0, Math.PI * 2);
             let glassGrad = ctx.createLinearGradient(0, -renderRadius, 0, 0);
@@ -695,13 +894,28 @@
                 if (distSq < minDist * minDist && distSq > 0) {
                     let dist = Math.sqrt(distSq), overlap = minDist - dist;
 
-                    if (a.levelIndex === b.levelIndex && !a.markedForMerge && !b.markedForMerge) {
+                    // Xử lý Thẻ Vạn Năng ăn ngọc
+                    if ((a.isWildcard || b.isWildcard) && !a.markedForMerge && !b.markedForMerge) {
+                        let normalBody = a.isWildcard ? b : a;
+                        if (!normalBody.isWildcard) {
+                            a.markedForMerge = true; b.markedForMerge = true;
+                            let targetLevel = normalBody.levelIndex + 1;
+                            if (targetLevel > LEVELS.length - 1) targetLevel = LEVELS.length - 1; 
+                            mergesThisFrame.push({
+                                a: a, b: b, level: targetLevel, x: normalBody.x, y: normalBody.y
+                            });
+                            continue;
+                        }
+                    }
+                    // Hợp nhất thông thường
+                    else if (a.levelIndex === b.levelIndex && !a.markedForMerge && !b.markedForMerge) {
                         if (a.levelIndex < LEVELS.length - 1) {
                             a.markedForMerge = true; b.markedForMerge = true;
                             mergesThisFrame.push({a, b, level: a.levelIndex + 1, x: (a.x + b.x)/2, y: (a.y + b.y)/2}); continue;
                         }
                     }
 
+                    // Tương tác vật lý đẩy nhau
                     let nx = dx / dist, ny = dy / dist;
                     let correction = Math.max(overlap - 0.1, 0) / ((1/a.mass) + (1/b.mass)) * 0.5;
                     a.x -= nx * correction / a.mass; a.y -= ny * correction / a.mass;
@@ -711,7 +925,6 @@
                     let velAlongNormal = rvx * nx + rvy * ny;
                     if (velAlongNormal > 0) continue; 
 
-                    // FIX ÁP DỤNG ĐỘ NẢY VÀO TƯƠNG TÁC GIỮA CÁC HẠT NGỌC CHỨ KHÔNG CHỈ TƯỜNG
                     let currentBounce = gameConfig.bounce;
                     let jVal = -(1 + currentBounce) * velAlongNormal; 
                     jVal /= (1/a.mass + 1/b.mass);
@@ -743,9 +956,7 @@
         draw(ctx) {
             ctx.globalAlpha = Math.max(0, this.life); ctx.fillStyle = this.color;
             ctx.beginPath(); 
-            let rx = this.x * scale; 
-            let ry = this.y * scale; 
-            let rs = Math.max(1, this.size * scale);
+            let rx = this.x * scale; let ry = this.y * scale; let rs = Math.max(1, this.size * scale);
             ctx.arc(rx, ry, rs, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0;
         }
     }
@@ -771,17 +982,25 @@
         }
     }
 
-    function addScore(points) {
-        score += points; 
-        document.getElementById('score-display').innerText = score;
-    }
-
     function gameLoop() {
         if(!canvasRect || canvasRect.width === 0) { requestAnimationFrame(gameLoop); return; }
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        if (gameState === 'PLAYING') {
+        // Kỹ năng ngắm: Vẽ lớp phủ tối tập trung
+        if (isTargetingDelete) {
+            ctx.fillStyle = "rgba(0,0,0,0.6)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#fff";
+            ctx.font = "900 " + Math.round(30 * scale) + "px Nunito";
+            ctx.textAlign = "center";
+            ctx.shadowColor = "rgba(0,0,0,0.8)"; ctx.shadowBlur = 10;
+            ctx.fillText("CHẠM VÀO NGỌC ĐỂ XÓA", canvas.width/2, canvas.height/2);
+            ctx.shadowBlur = 0;
+        }
+
+        // Đóng băng vật lý nếu đang ngắm xóa
+        if (gameState === 'PLAYING' && !isTargetingDelete) {
             for (let s = 0; s < 6; s++) { bodies.forEach(b => b.update()); resolveCollisions(); }
             checkGameOver();
         }
@@ -790,9 +1009,7 @@
             b.draw(ctx);
             if (b.dangerTimer > 0) { 
                 ctx.beginPath();
-                let dangerX = b.x * scale;
-                let dangerY = b.y * scale;
-                let dangerR = (b.radius + Math.sin(Date.now()/100)*5) * scale;
+                let dangerX = b.x * scale; let dangerY = b.y * scale; let dangerR = (b.radius + Math.sin(Date.now()/100)*5) * scale;
                 ctx.arc(dangerX, dangerY, dangerR, 0, Math.PI*2); 
                 ctx.strokeStyle = "rgba(255, 71, 87,0.8)"; ctx.lineWidth = 3; ctx.stroke(); 
             }
@@ -803,7 +1020,8 @@
             if (particles[i].life <= 0) particles.splice(i, 1); 
         }
 
-        if (currentDropItem && (gameState === 'PLAYING' || gameState === 'START')) {
+        // Ẩn vật phẩm đang rớt nếu đang bận ngắm xóa
+        if (currentDropItem && (gameState === 'PLAYING' || gameState === 'START') && !isTargetingDelete) {
             ctx.globalAlpha = 0.8;
             let guideX = currentDropItem.x * scale;
             let guideY = (currentDropItem.y + currentDropItem.radius) * scale;
