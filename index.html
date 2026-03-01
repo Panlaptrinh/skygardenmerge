@@ -38,7 +38,7 @@
             -webkit-user-select: auto !important;
         }
 
-        /* Sử dụng dvh (Dynamic Viewport Height) để fix lỗi thanh địa chỉ Safari/Chrome */
+        /* Khóa chặt màn hình để không bị lẹm thanh địa chỉ */
         body, html {
             width: 100vw;
             height: 100dvh; 
@@ -50,22 +50,18 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ----- BỐ CỤC CHÍNH ĐÁP ỨNG DỌC & NGANG ----- */
+        /* BỐ CỤC CHÍNH */
         #game-root {
             display: flex;
             width: 100%;
             height: 100dvh;
             padding: 8px;
             gap: 8px;
+            flex-direction: column; /* Mặc định dọc */
             transition: all 0.3s;
         }
 
-        /* --- MẶC ĐỊNH LÀ MÀN HÌNH DỌC (PORTRAIT) --- */
-        #game-root {
-            flex-direction: column;
-        }
-
-        /* Khu vực HUD ở trên cùng (Điểm, Next, Công cụ) */
+        /* Khu vực HUD ở trên cùng */
         .top-panel {
             display: flex;
             justify-content: space-between;
@@ -97,35 +93,46 @@
         }
         .icon-btn:active { transform: scale(0.9); }
 
-        /* Khu vực Canvas (Chiếm tối đa không gian) */
+        /* KHU VỰC CHỨA GAME: Luôn canh giữa và co giãn đúng tỷ lệ */
         .center-panel {
             flex: 1;
             width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: relative;
-            min-height: 0; /* Quan trọng để flexbox không bị tràn */
+            min-height: 0;
+            min-width: 0;
+            padding: 2px;
         }
+        
+        /* KHUNG KÍNH CHỨA GAME */
         .canvas-container {
-            width: 100%; height: 100%;
-            border: 3px solid rgba(255,255,255,0.9);
+            position: relative;
+            border: 4px solid rgba(255,255,255,0.9);
             border-radius: 15px;
             background: linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
-            box-shadow: inset 0 0 15px rgba(255,255,255,0.5);
-            position: relative;
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.5), 0 5px 20px rgba(0,0,0,0.15);
             overflow: hidden;
+            flex-shrink: 0; /* Không cho flex tự động bóp méo */
         }
+        
         canvas {
-            display: block; width: 100%; height: 100%;
-            touch-action: none; position: relative; z-index: 10;
+            display: block;
+            touch-action: none; 
+            position: relative; 
+            z-index: 10;
+            background: transparent; /* Để SVG background hiện lên */
         }
 
-        /* Khu vực Lộ trình tiến hóa (Nằm ngang dưới đáy khi ở Portrait) */
+        /* Lộ trình tiến hóa (Nằm ngang dưới đáy khi ở Portrait) */
         .evo-panel {
             display: flex;
             align-items: center;
             width: 100%;
             background: rgba(255,255,255,0.5);
             border-radius: 12px;
-            padding: 5px;
+            padding: 5px 10px;
             flex-shrink: 0;
             overflow-x: auto;
             scrollbar-width: none;
@@ -133,20 +140,20 @@
         .evo-panel::-webkit-scrollbar { display: none; }
         
         .evo-title {
-            font-size: 10px; font-weight: 900; color: #2d3436;
-            margin-right: 10px; white-space: nowrap;
+            font-size: 11px; font-weight: 900; color: #2d3436;
+            margin-right: 15px; white-space: nowrap;
         }
         .evolution-list {
-            display: flex; gap: 5px; align-items: center;
+            display: flex; gap: 8px; align-items: center;
         }
         .evo-bubble {
-            width: 30px; height: 30px; border-radius: 50%;
+            width: 32px; height: 32px; border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
-            font-size: 16px; border: 2px solid #fff; flex-shrink: 0;
+            font-size: 18px; border: 2px solid #fff; flex-shrink: 0;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* --- NẾU LÀ MÀN HÌNH NGANG (LANDSCAPE) SẼ CHUYỂN SANG 3 CỘT --- */
+        /* --- MÀN HÌNH NGANG (LANDSCAPE) SẼ CHUYỂN SANG 3 CỘT --- */
         @media screen and (orientation: landscape) {
             #game-root { flex-direction: row; }
             
@@ -155,7 +162,7 @@
                 overflow-y: auto; overflow-x: hidden; padding: 10px 5px;
             }
             .evo-title { margin-right: 0; margin-bottom: 10px; text-align: center; }
-            .evolution-list { flex-direction: column-reverse; } /* Nhỏ dưới, to trên */
+            .evolution-list { flex-direction: column-reverse; } 
 
             .top-panel {
                 flex-direction: column; width: 100px; height: 100%;
@@ -165,11 +172,11 @@
             .tools { flex-direction: column; margin-top: auto; }
         }
 
-        /* SVG Background */
+        /* SVG Background Logo chìm trong game */
         .brand-logo-svg {
             position: absolute; top: 50%; left: 50%;
-            width: 60%; max-width: 250px; transform: translate(-50%, -50%);
-            opacity: 0.2; pointer-events: none; z-index: 1;
+            width: 70%; max-width: 250px; transform: translate(-50%, -50%);
+            opacity: 0.25; pointer-events: none; z-index: 1;
             animation: floatLogo 6s ease-in-out infinite;
         }
 
@@ -184,7 +191,7 @@
         }
         .danger-warning {
             background: rgba(255, 118, 117, 0.95); color: #fff; border: 2px solid #fff;
-            padding: 2px 10px; border-radius: 10px; font-size: 9px; font-weight: 900;
+            padding: 3px 12px; border-radius: 12px; font-size: 10px; font-weight: 900;
             text-transform: uppercase; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             animation: pulse-warning 2s infinite; z-index: 6;
         }
@@ -193,10 +200,10 @@
             50% { opacity: 1; transform: scale(1.05); }
         }
 
-        /* ----- MODAL FIX CHO ĐIỆN THOẠI ----- */
+        /* MODAL KHÔNG BỊ LỆCH */
         .modal {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); 
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); 
             display: flex; justify-content: center; align-items: center;
             z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
@@ -205,16 +212,14 @@
         .modal-content {
             background: #fff; padding: 20px; border-radius: 20px; 
             text-align: center; width: 90%; max-width: 320px; 
-            /* Fix lẹm đuôi: Giới hạn chiều cao và cho phép cuộn */
-            max-height: 85dvh; overflow-y: auto; 
+            max-height: 90dvh; overflow-y: auto; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 3px solid #a1c4fd;
         }
-        .modal-content h2 { color: #0984e3; font-size: 22px; font-weight: 900; margin-bottom: 5px;}
+        .modal-content h2 { color: #0984e3; font-size: 24px; font-weight: 900; margin-bottom: 5px;}
         .modal-content p { color: #636e72; font-size: 13px; font-weight: bold; margin-bottom: 15px; }
 
-        /* Font-size 16px là bắt buộc để iOS không tự động zoom màn hình khi gõ phím */
         .custom-input { 
-            width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; 
+            width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 10px; 
             border: 2px solid #a1c4fd; font-family: inherit; font-size: 16px; 
             font-weight: 700; text-align: center; outline: none; box-sizing: border-box; 
         }
@@ -228,7 +233,7 @@
 
         .primary-btn { 
             background: linear-gradient(to right, #a1c4fd, #fbc2eb); border: none; 
-            padding: 12px; width: 100%; border-radius: 10px; color: #fff; 
+            padding: 14px; width: 100%; border-radius: 10px; color: #fff; 
             font-weight: 900; font-size: 16px; cursor: pointer; margin-top: 5px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
@@ -250,16 +255,16 @@
 
 <div id="game-root">
     
-    <!-- HUD CHUNG (Nằm trên cùng ở Dọc, Nằm bên phải ở Ngang) -->
+    <!-- HUD CHUNG -->
     <div class="top-panel">
         <div class="hud-box">
-            <div class="hud-label">Điểm</div>
+            <div class="hud-label">Điểm số</div>
             <div class="hud-value" id="score-display">0</div>
         </div>
         
         <div class="hud-box">
             <div class="hud-label">Tiếp theo</div>
-            <div id="next-item-preview" style="font-size:24px; margin-top:4px;">🌱</div>
+            <div id="next-item-preview" style="font-size:26px; margin-top:4px;">🌱</div>
         </div>
 
         <div class="tools">
@@ -269,14 +274,20 @@
     </div>
 
     <!-- KHUNG GAME CHÍNH -->
-    <main class="center-panel">
+    <main class="center-panel" id="center-panel">
+        <!-- Khung kính bọc trọn gói Canvas và SVG -->
         <div class="canvas-container" id="canvas-wrapper">
+            
             <svg class="brand-logo-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <radialGradient id="glass" cx="40%" cy="30%" r="60%">
                         <stop offset="0%" stop-color="rgba(255,255,255,0.9)" />
                         <stop offset="40%" stop-color="rgba(255,255,255,0.2)" />
                         <stop offset="100%" stop-color="rgba(180,200,255,0.5)" />
+                    </radialGradient>
+                    <radialGradient id="seedGrad" cx="30%" cy="30%" r="60%">
+                        <stop offset="0%" stop-color="#e0f6c8" />
+                        <stop offset="100%" stop-color="#86e3ce" />
                     </radialGradient>
                 </defs>
                 <circle cx="150" cy="110" r="95" fill="url(#glass)" stroke="rgba(255,255,255,0.9)" stroke-width="4"/>
@@ -299,7 +310,7 @@
         </div>
     </main>
 
-    <!-- LỘ TRÌNH (Dưới đáy ở Dọc, Bên trái ở Ngang) -->
+    <!-- LỘ TRÌNH -->
     <aside class="evo-panel">
         <div class="evo-title">Tiến Hóa</div>
         <div class="evolution-list" id="evo-list"></div>
@@ -313,7 +324,6 @@
         <h2>Sky Garden</h2>
         <p id="welcome-msg">Ghép hạt giống tạo Cây Tối Thượng!</p>
         
-        <!-- Lưu ý: font-size 16px trong CSS chống zoom màn hình khi bấm vào đây -->
         <input type="text" id="player-name-input" class="custom-input" placeholder="Nhập tên..." maxlength="12">
         <select id="diff-select" class="custom-input">
             <option value="easy">Độ nảy: Thấp (Dễ)</option>
@@ -333,8 +343,8 @@
 
 <div class="modal" id="game-over-modal">
     <div class="modal-content">
-        <h2 style="color: #d63031;">Trò Chơi Kết Thúc</h2>
-        <p>Vườn của bạn đã đầy mất rồi!</p>
+        <h2 style="color: #d63031;">Vườn Đã Đầy!</h2>
+        <p>Điểm số của bạn</p>
         <div style="font-size: 36px; font-weight: 900; color: #0984e3; margin: 10px 0;" id="final-score">0</div>
         <button class="primary-btn" onclick="showStartModal()">CHƠI LẠI</button>
     </div>
@@ -343,28 +353,29 @@
 <script>
     const LEVELS = [
         { level: 1, name: "Hạt giống", icon: "🌱", color: "#b5e7a0", radius: 22, mass: 1, points: 2 },
-        { level: 2, name: "Mầm cây", icon: "🌿", color: "#86e3ce", radius: 30, mass: 2, points: 4 },
-        { level: 3, name: "Cây non", icon: "🍀", color: "#d0e6a5", radius: 42, mass: 4, points: 8 },
-        { level: 4, name: "Hoa nhỏ", icon: "🌼", color: "#ffdd94", radius: 56, mass: 8, points: 16 },
-        { level: 5, name: "Hoa lớn", icon: "🌺", color: "#fa897b", radius: 72, mass: 16, points: 32 },
-        { level: 6, name: "Trưởng thành", icon: "🌳", color: "#ccabd8", radius: 90, mass: 32, points: 64 },
-        { level: 7, name: "Cổ thụ", icon: "🌲", color: "#86af49", radius: 110, mass: 64, points: 128 },
-        { level: 8, name: "Cây thần", icon: "🌈", color: "#b39cd0", radius: 135, mass: 128, points: 256 },
-        { level: 9, name: "Pha Lê", icon: "🔮", color: "#74b9ff", radius: 165, mass: 256, points: 512 },
-        { level: 10, name: "Vũ Trụ", icon: "🌌", color: "#0984e3", radius: 200, mass: 512, points: 1024 },
-        { level: 11, name: "Sinh Mệnh", icon: "👑", color: "#fdcb6e", radius: 250, mass: 1024, points: 2048 }
+        { level: 2, name: "Mầm cây", icon: "🌿", color: "#86e3ce", radius: 32, mass: 2, points: 4 },
+        { level: 3, name: "Cây non", icon: "🍀", color: "#d0e6a5", radius: 44, mass: 4, points: 8 },
+        { level: 4, name: "Hoa nhỏ", icon: "🌼", color: "#ffdd94", radius: 58, mass: 8, points: 16 },
+        { level: 5, name: "Hoa lớn", icon: "🌺", color: "#fa897b", radius: 75, mass: 16, points: 32 },
+        { level: 6, name: "Trưởng thành", icon: "🌳", color: "#ccabd8", radius: 95, mass: 32, points: 64 },
+        { level: 7, name: "Cổ thụ", icon: "🌲", color: "#86af49", radius: 120, mass: 64, points: 128 },
+        { level: 8, name: "Cây thần", icon: "🌈", color: "#b39cd0", radius: 150, mass: 128, points: 256 },
+        { level: 9, name: "Pha Lê", icon: "🔮", color: "#74b9ff", radius: 185, mass: 256, points: 512 },
+        { level: 10, name: "Vũ Trụ", icon: "🌌", color: "#0984e3", radius: 225, mass: 512, points: 1024 },
+        { level: 11, name: "Sinh Mệnh", icon: "👑", color: "#fdcb6e", radius: 270, mass: 1024, points: 2048 }
     ];
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d', { alpha: true });
     const wrapper = document.getElementById('canvas-wrapper');
+    const centerPanel = document.getElementById('center-panel');
 
-    // Chìa khóa xử lý Resize: Cố định Chiều rộng Logic, Chiều cao Logic tự động giãn theo tỷ lệ màn hình thực tế.
+    // TỶ LỆ LOGIC LUÔN CỐ ĐỊNH LÀ 800x1100. Đảm bảo mọi thứ chạy mượt trên mọi kích thước màn hình!
     const LOGICAL_WIDTH = 800;
-    let LOGICAL_HEIGHT = 800; // Sẽ tự cập nhật
-    let GAME_OVER_LINE = 120;
+    const LOGICAL_HEIGHT = 1100; 
+    let GAME_OVER_LINE = LOGICAL_HEIGHT * 0.15; 
 
-    let scaleX = 1, scaleY = 1;
+    let scale = 1; 
     let canvasRect;
     let gameConfig = { bounce: 0.3 };
     let bodies = [], particles = [];
@@ -374,7 +385,7 @@
     let canDrop = true; 
     let playerName = "Người Chơi";
     
-    let globalLeaderboard = JSON.parse(localStorage.getItem('skyGardenV4')) || [];
+    let globalLeaderboard = JSON.parse(localStorage.getItem('skyGardenGH_v5')) || [];
     const sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
     let isBgmPlaying = false; 
 
@@ -382,26 +393,18 @@
         renderEvolutionPanel();
         loadPlayerData();
         
-        // Use a debounced resize handler with ResizeObserver
         let resizeTimeout;
         const observer = new ResizeObserver(() => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                // Wrap in requestAnimationFrame to avoid "ResizeObserver loop completed with undelivered notifications"
                 window.requestAnimationFrame(() => {
                     resizeCanvas();
                 });
-            }, 50); // debounce delay
+            }, 100); 
         });
         
-        if(wrapper) {
-           observer.observe(wrapper);
-        }
-        
-        // Initial resize
-        window.requestAnimationFrame(() => {
-           resizeCanvas();
-        });
+        if(centerPanel) observer.observe(centerPanel);
+        window.requestAnimationFrame(() => resizeCanvas());
     }
 
     function renderEvolutionPanel() {
@@ -414,7 +417,7 @@
     }
     
     function loadPlayerData() {
-        let savedName = localStorage.getItem('skyGardenNameV4');
+        let savedName = localStorage.getItem('skyGardenNameV5');
         if(savedName) {
             document.getElementById('player-name-input').value = savedName;
             document.getElementById('welcome-msg').innerText = `Mừng trở lại, ${savedName}!`;
@@ -426,7 +429,6 @@
     function updateLeaderboardUI() {
         const list = document.getElementById('lb-list');
         if (globalLeaderboard.length === 0) return;
-        
         let html = "";
         globalLeaderboard.slice(0, 3).forEach((item, index) => {
             let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉';
@@ -440,51 +442,65 @@
             globalLeaderboard.push({ name: playerName, score: score });
             globalLeaderboard.sort((a, b) => b.score - a.score);
             globalLeaderboard = globalLeaderboard.slice(0, 10);
-            localStorage.setItem('skyGardenV4', JSON.stringify(globalLeaderboard));
+            localStorage.setItem('skyGardenGH_v5', JSON.stringify(globalLeaderboard));
             updateLeaderboardUI();
         }
     }
 
     function resizeCanvas() {
-        if (!wrapper) return;
-        let dpr = window.devicePixelRatio || 1;
-        canvasRect = wrapper.getBoundingClientRect();
-        if(canvasRect.width === 0 || canvasRect.height === 0) return;
+        if (!centerPanel || !wrapper) return;
         
-        // Điều chỉnh kích thước canvas thực tế
-        canvas.width = Math.round(canvasRect.width * dpr);
-        canvas.height = Math.round(canvasRect.height * dpr);
-        canvas.style.width = canvasRect.width + 'px';
-        canvas.style.height = canvasRect.height + 'px';
+        // Đo lường khoảng trống có sẵn (trừ bớt padding để có lề thở)
+        let panelRect = centerPanel.getBoundingClientRect();
+        let availableWidth = panelRect.width - 4; 
+        let availableHeight = panelRect.height - 4;
+        
+        if(availableWidth <= 0 || availableHeight <= 0) return;
+
+        // Tính toán giữ đúng tỷ lệ Logic 800:1100
+        let targetRatio = LOGICAL_WIDTH / LOGICAL_HEIGHT;
+        let screenRatio = availableWidth / availableHeight;
+        
+        let finalWidth, finalHeight;
+        if (screenRatio > targetRatio) {
+            // Màn hình quá dư chiều ngang -> Cắt theo chiều dọc
+            finalHeight = availableHeight;
+            finalWidth = finalHeight * targetRatio;
+        } else {
+            // Màn hình quá dư chiều dọc -> Cắt theo chiều ngang
+            finalWidth = availableWidth;
+            finalHeight = finalWidth / targetRatio;
+        }
+
+        // Ép Wrapper giữ đúng kích thước này
+        wrapper.style.width = finalWidth + 'px';
+        wrapper.style.height = finalHeight + 'px';
+        
+        let dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(finalWidth * dpr);
+        canvas.height = Math.round(finalHeight * dpr);
+        canvas.style.width = finalWidth + 'px';
+        canvas.style.height = finalHeight + 'px';
         
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.scale(dpr, dpr);
         
-        // QUAN TRỌNG: Tính toán lại Hệ trục Vật lý để khớp với độ dài màn hình
-        scaleX = canvasRect.width / LOGICAL_WIDTH;
-        // Chiều cao Logic giãn ra để mặt đất luôn ở sát đáy màn hình
-        LOGICAL_HEIGHT = LOGICAL_WIDTH * (canvasRect.height / canvasRect.width);
-        scaleY = canvasRect.height / LOGICAL_HEIGHT; // Lúc này scaleX == scaleY
+        // System scale: Duy nhất 1 biến
+        scale = finalWidth / LOGICAL_WIDTH;
         
-        // Dịch chuyển Vạch thua game (15% chiều cao từ trên xuống)
-        GAME_OVER_LINE = LOGICAL_HEIGHT * 0.15;
+        // Update vạch đỏ theo logic
         let dangerUi = document.getElementById('danger-ui');
         if(dangerUi) {
-             dangerUi.style.top = '15%';
+            dangerUi.style.top = (GAME_OVER_LINE / LOGICAL_HEIGHT * 100) + '%';
         }
-
-        // Kéo các vật phẩm hiện có lên nếu chúng bị rớt xuống dưới mặt đất do resize
-        bodies.forEach(b => {
-            if (b.y + b.radius > LOGICAL_HEIGHT) {
-                b.y = LOGICAL_HEIGHT - b.radius - 1;
-            }
-        });
+        
+        canvasRect = wrapper.getBoundingClientRect();
     }
 
     function getLogicalMousePos(clientX) {
-        if(!canvasRect) canvasRect = canvas.getBoundingClientRect();
+        if(!canvasRect) return LOGICAL_WIDTH / 2;
         let relativeX = clientX - canvasRect.left;
-        return relativeX / scaleX;
+        return relativeX / scale;
     }
 
     function showStartModal() {
@@ -496,8 +512,8 @@
 
     function startGame() {
         let inputName = document.getElementById('player-name-input').value.trim();
-        playerName = inputName !== "" ? inputName : "Người Chơi";
-        localStorage.setItem('skyGardenNameV4', playerName); 
+        playerName = inputName !== "" ? inputName : "Nông Dân";
+        localStorage.setItem('skyGardenNameV5', playerName); 
         
         let diffMode = document.getElementById('diff-select').value;
         gameConfig.bounce = (diffMode === 'easy') ? 0.15 : 0.35;
@@ -524,7 +540,7 @@
 
     function createCurrentDropItem() {
         let radius = LEVELS[nextItemLevel].radius;
-        currentDropItem = new Body(Math.max(radius, Math.min(LOGICAL_WIDTH - radius, mouseX)), GAME_OVER_LINE - radius - 10, nextItemLevel);
+        currentDropItem = new Body(Math.max(radius, Math.min(LOGICAL_WIDTH - radius, mouseX)), GAME_OVER_LINE - radius - 15, nextItemLevel);
         currentDropItem.spawnScale = 1; 
     }
 
@@ -551,7 +567,7 @@
         }, 800);
     }
 
-    // Bind touch events to Canvas Wrapper to allow scrolling outside (e.g., inside Modals)
+    // Touch logic gắn vào wrapper để mượt và chính xác
     wrapper.addEventListener('mousemove', handleMove);
     wrapper.addEventListener('touchmove', (e) => { e.preventDefault(); handleMove(e); }, {passive: false});
     wrapper.addEventListener('mousedown', handleDrop);
@@ -572,10 +588,11 @@
             this.x += this.vx; this.y += this.vy;
             let currentBounce = gameConfig.bounce;
 
+            // Cản hai bên tường
             if (this.x - this.radius < 0) { this.x = this.radius; this.vx *= -currentBounce; }
             else if (this.x + this.radius > LOGICAL_WIDTH) { this.x = LOGICAL_WIDTH - this.radius; this.vx *= -currentBounce; }
 
-            // Va chạm đất hoàn hảo theo kích thước màn hình
+            // Cản đáy hoàn hảo
             if (this.y + this.radius > LOGICAL_HEIGHT) {
                 this.y = LOGICAL_HEIGHT - this.radius; this.vy *= -currentBounce; this.vx *= 0.8; 
             }
@@ -583,24 +600,24 @@
 
         draw(ctx) {
             ctx.save(); 
-            let rx = Math.round(this.x * scaleX);
-            let ry = Math.round(this.y * scaleY);
+            let rx = this.x * scale;
+            let ry = this.y * scale;
             ctx.translate(rx, ry); 
             
-            let renderRadius = Math.round(this.radius * scaleX * this.spawnScale); // Dùng scaleX cho cả H và W để giữ độ tròn
+            let renderRadius = this.radius * scale * this.spawnScale;
             
-            ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = Math.round(renderRadius * 0.3); ctx.shadowOffsetY = 2;
+            ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = renderRadius * 0.3; ctx.shadowOffsetY = 2;
             ctx.beginPath(); ctx.arc(0, 0, renderRadius, 0, Math.PI * 2); 
             ctx.fillStyle = this.color; ctx.fill();
 
-            ctx.beginPath(); ctx.ellipse(Math.round(-renderRadius * 0.2), Math.round(-renderRadius * 0.3), Math.round(renderRadius * 0.5), Math.round(renderRadius * 0.25), -Math.PI / 6, 0, Math.PI * 2);
+            ctx.beginPath(); ctx.ellipse(-renderRadius * 0.2, -renderRadius * 0.3, renderRadius * 0.5, renderRadius * 0.25, -Math.PI / 6, 0, Math.PI * 2);
             let glassGrad = ctx.createLinearGradient(0, -renderRadius, 0, 0);
             glassGrad.addColorStop(0, "rgba(255, 255, 255, 0.8)"); glassGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
             ctx.fillStyle = glassGrad; ctx.fill();
 
             ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
             ctx.font = `${renderRadius}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(this.icon, 0, Math.round(renderRadius * 0.1));
+            ctx.fillText(this.icon, 0, renderRadius * 0.1);
             ctx.restore();
         }
     }
@@ -660,9 +677,9 @@
         draw(ctx) {
             ctx.globalAlpha = Math.max(0, this.life); ctx.fillStyle = this.color;
             ctx.beginPath(); 
-            let rx = Math.round(this.x * scaleX); 
-            let ry = Math.round(this.y * scaleY); 
-            let rs = Math.max(1, Math.round(this.size * scaleX));
+            let rx = this.x * scale; 
+            let ry = this.y * scale; 
+            let rs = Math.max(1, this.size * scale);
             ctx.arc(rx, ry, rs, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0;
         }
     }
@@ -694,9 +711,9 @@
     }
 
     function gameLoop() {
-        if(!canvasRect) { requestAnimationFrame(gameLoop); return; }
+        if(!canvasRect || canvasRect.width === 0) { requestAnimationFrame(gameLoop); return; }
         
-        ctx.clearRect(0, 0, canvasRect.width, canvasRect.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (gameState === 'PLAYING') {
             for (let s = 0; s < 6; s++) { bodies.forEach(b => b.update()); resolveCollisions(); }
@@ -707,9 +724,9 @@
             b.draw(ctx);
             if (b.dangerTimer > 0) { 
                 ctx.beginPath();
-                let dangerX = Math.round(b.x * scaleX);
-                let dangerY = Math.round(b.y * scaleY);
-                let dangerR = Math.round((b.radius + Math.sin(Date.now()/100)*5) * scaleX);
+                let dangerX = b.x * scale;
+                let dangerY = b.y * scale;
+                let dangerR = (b.radius + Math.sin(Date.now()/100)*5) * scale;
                 ctx.arc(dangerX, dangerY, dangerR, 0, Math.PI*2); 
                 ctx.strokeStyle = "rgba(255, 71, 87,0.8)"; ctx.lineWidth = 3; ctx.stroke(); 
             }
@@ -722,11 +739,11 @@
 
         if (currentDropItem && (gameState === 'PLAYING' || gameState === 'START')) {
             ctx.globalAlpha = 0.8;
-            let guideX = Math.round(currentDropItem.x * scaleX);
-            let guideY = Math.round((currentDropItem.y + currentDropItem.radius) * scaleY);
+            let guideX = currentDropItem.x * scale;
+            let guideY = (currentDropItem.y + currentDropItem.radius) * scale;
             
             ctx.beginPath(); ctx.moveTo(guideX, guideY);
-            ctx.lineTo(guideX, canvasRect.height); 
+            ctx.lineTo(guideX, canvas.height); 
             ctx.strokeStyle = "rgba(255, 255, 255, 0.6)"; ctx.lineWidth = 2; ctx.setLineDash([8, 8]); ctx.stroke(); ctx.setLineDash([]);
             
             ctx.globalAlpha = 1.0; 
