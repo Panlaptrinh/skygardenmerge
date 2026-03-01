@@ -42,6 +42,12 @@
             -webkit-touch-callout: none;
         }
 
+        /* MỞ KHÓA KHẢ NĂNG NHẬP LIỆU CHO CÁC Ô TEXTBOX VÀ SELECT TRÊN MOBILE */
+        input, select, textarea {
+            user-select: auto !important;
+            -webkit-user-select: auto !important;
+        }
+
         /* KHÓA CHẶT MÀN HÌNH BẰNG FIXED ĐỂ TRÁNH LỖI SCROLL TRÊN TRÌNH DUYỆT MOBILE */
         body, html {
             position: fixed;
@@ -358,37 +364,6 @@
             </div>
 
             <canvas id="gameCanvas"></canvas>
-            
-            <div class="modal active" id="start-modal">
-                <div class="modal-content">
-                    <h2>Sky Garden</h2>
-                    <p id="welcome-msg">Ghép hạt giống tạo Cây Tối Thượng!</p>
-                    
-                    <input type="text" id="player-name-input" class="custom-input" placeholder="Tên của bạn..." maxlength="12">
-                    <select id="diff-select" class="custom-input">
-                        <option value="easy">Cơ bản (Dễ)</option>
-                        <option value="normal" selected>Bình thường</option>
-                    </select>
-                    
-                    <button class="primary-btn" onclick="startGame()">VÀO VƯỜN</button>
-                    
-                    <div class="leaderboard-mini">
-                        <div class="lb-title">🏆 Kỷ lục thiết bị này</div>
-                        <div id="lb-list">
-                            <div class="lb-item" style="justify-content:center; color:#999;">Chưa có dữ liệu</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal" id="game-over-modal">
-                <div class="modal-content">
-                    <h2 style="color: #d63031;">Vườn Đã Đầy!</h2>
-                    <p>Điểm số của bạn</p>
-                    <div style="font-size: 32px; font-weight: 900; color: #0984e3; margin: 5px 0;" id="final-score">0</div>
-                    <button class="primary-btn" onclick="showStartModal()">CHƠI LẠI</button>
-                </div>
-            </div>
         </div>
     </main>
 
@@ -409,6 +384,38 @@
         </div>
     </aside>
 
+</div>
+
+<!-- ĐƯA MODAL RA KHỎI ROOT ĐỂ KHÔNG BỊ CANVAS CHẶN CẢM ỨNG -->
+<div class="modal active" id="start-modal">
+    <div class="modal-content">
+        <h2>Sky Garden</h2>
+        <p id="welcome-msg">Ghép hạt giống tạo Cây Tối Thượng!</p>
+        
+        <input type="text" id="player-name-input" class="custom-input" placeholder="Tên của bạn..." maxlength="12">
+        <select id="diff-select" class="custom-input">
+            <option value="easy">Cơ bản (Dễ)</option>
+            <option value="normal" selected>Bình thường</option>
+        </select>
+        
+        <button class="primary-btn" onclick="startGame()">VÀO VƯỜN</button>
+        
+        <div class="leaderboard-mini">
+            <div class="lb-title">🏆 Kỷ lục thiết bị này</div>
+            <div id="lb-list">
+                <div class="lb-item" style="justify-content:center; color:#999;">Chưa có dữ liệu</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="game-over-modal">
+    <div class="modal-content">
+        <h2 style="color: #d63031;">Vườn Đã Đầy!</h2>
+        <p>Điểm số của bạn</p>
+        <div style="font-size: 32px; font-weight: 900; color: #0984e3; margin: 5px 0;" id="final-score">0</div>
+        <button class="primary-btn" onclick="showStartModal()">CHƠI LẠI</button>
+    </div>
 </div>
 
 <script>
