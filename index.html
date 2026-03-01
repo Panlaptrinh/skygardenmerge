@@ -135,9 +135,9 @@
             display: flex;
             align-items: center;
             width: 100%;
-            background: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.6);
             border-radius: 12px;
-            padding: 5px 10px;
+            padding: 8px 12px;
             flex-shrink: 0;
             overflow-x: auto;
             scrollbar-width: none;
@@ -149,13 +149,27 @@
             margin-right: 15px; white-space: nowrap;
         }
         .evolution-list {
-            display: flex; gap: 8px; align-items: center;
+            display: flex; gap: 16px; align-items: center;
         }
         .evo-bubble {
-            width: 32px; height: 32px; border-radius: 50%;
+            width: 34px; height: 34px; border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
             font-size: 18px; border: 2px solid #fff; flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        /* SỬA LỖI MŨI TÊN CHỈ HƯỚNG BẢNG TIẾN HÓA */
+        /* Mặc định cầm dọc (Portrait): Lộ trình nằm ngang -> Mũi tên chỉ ngang */
+        .evo-bubble:not(:last-child)::after {
+            content: "▶";
+            position: absolute;
+            right: -13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.9);
+            font-size: 10px;
+            font-weight: bold;
         }
 
         /* --- MÀN HÌNH NGANG (LANDSCAPE) SẼ CHUYỂN SANG 3 CỘT --- */
@@ -163,11 +177,21 @@
             #game-root { flex-direction: row; }
             
             .evo-panel {
-                flex-direction: column; width: 80px; height: 100%;
-                overflow-y: auto; overflow-x: hidden; padding: 10px 5px;
+                flex-direction: column; width: 85px; height: 100%;
+                overflow-y: auto; overflow-x: hidden; padding: 15px 5px;
             }
-            .evo-title { margin-right: 0; margin-bottom: 10px; text-align: center; }
-            .evolution-list { flex-direction: column-reverse; } 
+            .evo-title { margin-right: 0; margin-bottom: 15px; text-align: center; }
+            .evolution-list { flex-direction: column-reverse; gap: 18px; } 
+
+            /* Màn hình ngang: Lộ trình dọc từ dưới lên -> Mũi tên chỉ lên */
+            .evo-bubble:not(:last-child)::after {
+                content: "▲";
+                position: absolute;
+                top: -15px;
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%) translateY(0);
+            }
 
             .top-panel {
                 flex-direction: column; width: 100px; height: 100%;
@@ -187,25 +211,26 @@
 
         /* Vạch nguy hiểm */
         .danger-line-container {
-            position: absolute; top: 15%; left: 0; width: 100%; height: 2px;
+            position: absolute; left: 0; width: 100%; height: 2px;
             z-index: 5; pointer-events: none; display: flex; justify-content: center; align-items: center;
+            transition: top 0.3s;
         }
         .danger-line {
             position: absolute; top: 0; left: 0; width: 100%; height: 2px;
-            background: repeating-linear-gradient(90deg, transparent, transparent 5px, rgba(255, 71, 87,0.7) 5px, rgba(255, 71, 87,0.7) 10px);
+            background: repeating-linear-gradient(90deg, transparent, transparent 5px, rgba(255, 71, 87,0.8) 5px, rgba(255, 71, 87,0.8) 10px);
         }
         .danger-warning {
             background: rgba(255, 118, 117, 0.95); color: #fff; border: 2px solid #fff;
             padding: 3px 12px; border-radius: 12px; font-size: 10px; font-weight: 900;
             text-transform: uppercase; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            animation: pulse-warning 2s infinite; z-index: 6;
+            animation: pulse-warning 2s infinite; z-index: 6; position: absolute;
         }
         @keyframes pulse-warning {
             0%, 100% { opacity: 0.8; transform: scale(0.95); }
             50% { opacity: 1; transform: scale(1.05); }
         }
 
-        /* MODAL KHÔNG BỊ LỆCH */
+        /* MODAL CÀI ĐẶT */
         .modal {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
             background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); 
@@ -351,8 +376,9 @@
         
         <input type="text" id="player-name-input" class="custom-input" placeholder="Nhập tên..." maxlength="12">
         <select id="diff-select" class="custom-input">
-            <option value="easy">Độ nảy: Thấp (Dễ)</option>
-            <option value="normal" selected>Độ nảy: Bình thường</option>
+            <option value="easy">Chế độ: Thư giãn (Dễ)</option>
+            <option value="normal" selected>Chế độ: Bình thường</option>
+            <option value="hard">Chế độ: Ác mộng (Khó, nảy mạnh)</option>
         </select>
         
         <button class="primary-btn" onclick="startGame()">BẮT ĐẦU CHƠI</button>
@@ -376,33 +402,36 @@
 </div>
 
 <script>
+    // TĂNG ĐỘ KHÓ: Kích thước các vật phẩm được tăng lên đáng kể để nhanh lấp đầy màn hình hơn
     const LEVELS = [
-        { level: 1, name: "Hạt giống", icon: "🌱", color: "#b5e7a0", radius: 25, mass: 1, points: 2 },
-        { level: 2, name: "Mầm cây", icon: "🌿", color: "#86e3ce", radius: 35, mass: 2, points: 4 },
-        { level: 3, name: "Cây non", icon: "🍀", color: "#d0e6a5", radius: 48, mass: 4, points: 8 },
-        { level: 4, name: "Hoa nhỏ", icon: "🌼", color: "#ffdd94", radius: 62, mass: 8, points: 16 },
-        { level: 5, name: "Hoa lớn", icon: "🌺", color: "#fa897b", radius: 80, mass: 16, points: 32 },
-        { level: 6, name: "Trưởng thành", icon: "🌳", color: "#ccabd8", radius: 100, mass: 32, points: 64 },
-        { level: 7, name: "Cổ thụ", icon: "🌲", color: "#86af49", radius: 125, mass: 64, points: 128 },
-        { level: 8, name: "Cây thần", icon: "🌈", color: "#b39cd0", radius: 155, mass: 128, points: 256 },
-        { level: 9, name: "Pha Lê", icon: "🔮", color: "#74b9ff", radius: 190, mass: 256, points: 512 },
-        { level: 10, name: "Vũ Trụ", icon: "🌌", color: "#0984e3", radius: 230, mass: 512, points: 1024 },
-        { level: 11, name: "Sinh Mệnh", icon: "👑", color: "#fdcb6e", radius: 280, mass: 1024, points: 2048 }
+        { level: 1, name: "Hạt giống", icon: "🌱", color: "#b5e7a0", radius: 28, mass: 1, points: 2 },
+        { level: 2, name: "Mầm cây", icon: "🌿", color: "#86e3ce", radius: 40, mass: 2, points: 4 },
+        { level: 3, name: "Cây non", icon: "🍀", color: "#d0e6a5", radius: 55, mass: 4, points: 8 },
+        { level: 4, name: "Hoa nhỏ", icon: "🌼", color: "#ffdd94", radius: 72, mass: 8, points: 16 },
+        { level: 5, name: "Hoa lớn", icon: "🌺", color: "#fa897b", radius: 92, mass: 16, points: 32 },
+        { level: 6, name: "Trưởng thành", icon: "🌳", color: "#ccabd8", radius: 115, mass: 32, points: 64 },
+        { level: 7, name: "Cổ thụ", icon: "🌲", color: "#86af49", radius: 145, mass: 64, points: 128 },
+        { level: 8, name: "Cây thần", icon: "🌈", color: "#b39cd0", radius: 180, mass: 128, points: 256 },
+        { level: 9, name: "Pha Lê", icon: "🔮", color: "#74b9ff", radius: 220, mass: 256, points: 512 },
+        { level: 10, name: "Vũ Trụ", icon: "🌌", color: "#0984e3", radius: 265, mass: 512, points: 1024 },
+        { level: 11, name: "Sinh Mệnh", icon: "👑", color: "#fdcb6e", radius: 320, mass: 1024, points: 2048 }
     ];
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d', { alpha: true });
     const wrapper = document.getElementById('canvas-wrapper');
+    const centerPanel = document.getElementById('center-panel');
 
-    // Thiết lập vùng LOGIC độc lập, giúp game co giãn theo đúng tỷ lệ thực của điện thoại
+    // Thiết lập vùng LOGIC độc lập
     const LOGICAL_MIN = 1000;
     let LOGICAL_WIDTH = 1000;
     let LOGICAL_HEIGHT = 1000; 
     let GAME_OVER_LINE = 150; 
+    let dangerLinePercent = 0.18; // Tỷ lệ chiều cao vạch chết
 
     let scale = 1; 
     let canvasRect;
-    let gameConfig = { bounce: 0.3 };
+    let gameConfig = { bounce: 0.45 };
     let bodies = [], particles = [];
     let score = 0, gameState = 'START'; 
     let currentDropItem = null, nextItemLevel = 1;
@@ -410,7 +439,7 @@
     let canDrop = true; 
     let playerName = "Người Chơi";
     
-    let globalLeaderboard = JSON.parse(localStorage.getItem('skyGardenGH_v6')) || [];
+    let globalLeaderboard = JSON.parse(localStorage.getItem('skyGardenGH_v7')) || [];
     const sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
     let isBgmPlaying = false; 
 
@@ -428,7 +457,7 @@
             }, 100); 
         });
         
-        if(wrapper) observer.observe(wrapper);
+        if(centerPanel) observer.observe(centerPanel);
         window.requestAnimationFrame(() => resizeCanvas());
     }
 
@@ -442,7 +471,7 @@
     }
     
     function loadPlayerData() {
-        let savedName = localStorage.getItem('skyGardenNameV6');
+        let savedName = localStorage.getItem('skyGardenNameV7');
         if(savedName) {
             document.getElementById('player-name-input').value = savedName;
             document.getElementById('welcome-msg').innerText = `Mừng trở lại, ${savedName}!`;
@@ -467,51 +496,54 @@
             globalLeaderboard.push({ name: playerName, score: score });
             globalLeaderboard.sort((a, b) => b.score - a.score);
             globalLeaderboard = globalLeaderboard.slice(0, 10);
-            localStorage.setItem('skyGardenGH_v6', JSON.stringify(globalLeaderboard));
+            localStorage.setItem('skyGardenGH_v7', JSON.stringify(globalLeaderboard));
             updateLeaderboardUI();
         }
     }
 
     function resizeCanvas() {
-        if (!wrapper) return;
+        if (!centerPanel || !wrapper) return;
         
-        canvasRect = wrapper.getBoundingClientRect();
-        if(canvasRect.width === 0 || canvasRect.height === 0) return;
+        let panelRect = centerPanel.getBoundingClientRect();
+        let availableWidth = panelRect.width - 4; 
+        let availableHeight = panelRect.height - 4;
+        
+        if(availableWidth <= 0 || availableHeight <= 0) return;
 
+        let targetRatio = LOGICAL_WIDTH / LOGICAL_HEIGHT;
+        let screenRatio = availableWidth / availableHeight;
+        
+        let finalWidth, finalHeight;
+        if (screenRatio > targetRatio) {
+            finalHeight = availableHeight;
+            finalWidth = finalHeight * targetRatio;
+        } else {
+            finalWidth = availableWidth;
+            finalHeight = finalWidth / targetRatio;
+        }
+
+        wrapper.style.width = finalWidth + 'px';
+        wrapper.style.height = finalHeight + 'px';
+        
         let dpr = window.devicePixelRatio || 1;
-        // Bắt chính xác từng Pixel, không bị cắt xén
-        canvas.width = Math.round(canvasRect.width * dpr);
-        canvas.height = Math.round(canvasRect.height * dpr);
+        canvas.width = Math.round(finalWidth * dpr);
+        canvas.height = Math.round(finalHeight * dpr);
+        canvas.style.width = finalWidth + 'px';
+        canvas.style.height = finalHeight + 'px';
         
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.scale(dpr, dpr);
         
-        // Cập nhật lại hệ trục logic đảm bảo không vật phẩm nào biến dạng hay tràn ra ngoài
-        if (canvasRect.width < canvasRect.height) {
-            LOGICAL_WIDTH = LOGICAL_MIN;
-            LOGICAL_HEIGHT = LOGICAL_MIN * (canvasRect.height / canvasRect.width);
-            scale = canvasRect.width / LOGICAL_WIDTH;
-        } else {
-            LOGICAL_HEIGHT = LOGICAL_MIN;
-            LOGICAL_WIDTH = LOGICAL_MIN * (canvasRect.width / canvasRect.height);
-            scale = canvasRect.height / LOGICAL_HEIGHT; 
-        }
+        scale = finalWidth / LOGICAL_WIDTH;
         
-        GAME_OVER_LINE = LOGICAL_HEIGHT * 0.15;
+        // Điều chỉnh vạch chết theo độ khó
+        GAME_OVER_LINE = LOGICAL_HEIGHT * dangerLinePercent;
         let dangerUi = document.getElementById('danger-ui');
         if(dangerUi) {
-            dangerUi.style.top = '15%';
+            dangerUi.style.top = (dangerLinePercent * 100) + '%';
         }
-
-        // Neo chặt các vật phẩm lên trên mặt đất nếu cửa sổ bị thu hẹp
-        bodies.forEach(b => {
-            if (b.y + b.radius > LOGICAL_HEIGHT) {
-                b.y = LOGICAL_HEIGHT - b.radius;
-            }
-            if (b.x + b.radius > LOGICAL_WIDTH) {
-                b.x = LOGICAL_WIDTH - b.radius;
-            }
-        });
+        
+        canvasRect = wrapper.getBoundingClientRect();
     }
 
     function getLogicalMousePos(clientX) {
@@ -530,10 +562,22 @@
     function startGame() {
         let inputName = document.getElementById('player-name-input').value.trim();
         playerName = inputName !== "" ? inputName : "Nông Dân";
-        localStorage.setItem('skyGardenNameV6', playerName); 
+        localStorage.setItem('skyGardenNameV7', playerName); 
         
         let diffMode = document.getElementById('diff-select').value;
-        gameConfig.bounce = (diffMode === 'easy') ? 0.15 : 0.35;
+        
+        // Tùy chỉnh tham số theo độ khó để cảm giác chơi thay đổi rõ rệt
+        if (diffMode === 'easy') {
+            gameConfig.bounce = 0.15;
+            dangerLinePercent = 0.10; // Vạch chết rất cao, nhiều không gian
+        } else if (diffMode === 'hard') {
+            gameConfig.bounce = 0.65; // Nảy văng rất mạnh
+            dangerLinePercent = 0.28; // Vạch chết thấp, rất ít không gian
+        } else {
+            gameConfig.bounce = 0.40;
+            dangerLinePercent = 0.18;
+        }
+        resizeCanvas(); // Áp dụng vị trí vạch chết ngay lập tức
 
         document.getElementById('start-modal').classList.remove('active');
         
@@ -601,15 +645,16 @@
 
         update() {
             if (this.spawnScale < 1) { this.spawnScale += 0.08; if (this.spawnScale > 1) this.spawnScale = 1; }
-            this.vy += 0.6; this.vx *= 0.99; this.vy *= 0.99;
+            
+            // TĂNG TRỌNG LỰC ĐỂ RƠI NHANH MƯỢT HƠN
+            this.vy += 0.8; 
+            this.vx *= 0.99; this.vy *= 0.99;
             this.x += this.vx; this.y += this.vy;
             let currentBounce = gameConfig.bounce;
 
-            // Cản hai bên tường logic
             if (this.x - this.radius < 0) { this.x = this.radius; this.vx *= -currentBounce; }
             else if (this.x + this.radius > LOGICAL_WIDTH) { this.x = LOGICAL_WIDTH - this.radius; this.vx *= -currentBounce; }
 
-            // Cản đáy hoàn hảo
             if (this.y + this.radius > LOGICAL_HEIGHT) {
                 this.y = LOGICAL_HEIGHT - this.radius; this.vy *= -currentBounce; this.vx *= 0.8; 
             }
@@ -666,7 +711,11 @@
                     let velAlongNormal = rvx * nx + rvy * ny;
                     if (velAlongNormal > 0) continue; 
 
-                    let jVal = -(1 + 0.1) * velAlongNormal; jVal /= (1/a.mass + 1/b.mass);
+                    // FIX ÁP DỤNG ĐỘ NẢY VÀO TƯƠNG TÁC GIỮA CÁC HẠT NGỌC CHỨ KHÔNG CHỈ TƯỜNG
+                    let currentBounce = gameConfig.bounce;
+                    let jVal = -(1 + currentBounce) * velAlongNormal; 
+                    jVal /= (1/a.mass + 1/b.mass);
+                    
                     a.vx -= jVal * nx / a.mass; a.vy -= jVal * ny / a.mass;
                     b.vx += jVal * nx / b.mass; b.vy += jVal * ny / b.mass;
                 }
