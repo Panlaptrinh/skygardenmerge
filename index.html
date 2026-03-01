@@ -345,6 +345,21 @@
         .lb-name { font-weight: bold; color: #636e72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
         .lb-score { font-weight: 900; color: #0984e3; }
 
+        /* SPLASH SCREEN STYLES */
+        #splash-modal .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 3px solid #ff7675;
+            color: #fff;
+            align-items: center;
+        }
+        .fb-link {
+            display: inline-block; margin: 15px 0; color: #74b9ff; text-decoration: none; font-weight: bold; 
+            border: 2px solid #74b9ff; padding: 10px 20px; border-radius: 20px; transition: all 0.3s;
+        }
+        .fb-link:active {
+            background: #74b9ff; color: #fff;
+        }
+
     </style>
 </head>
 <body>
@@ -451,14 +466,16 @@
 
 </div>
 
-<!-- MODAL ĐĂNG NHẬP BẢO MẬT -->
-<div class="modal active" id="login-modal">
+<!-- MODAL GIỚI THIỆU NHÀ SẢN XUẤT (SPLASH SCREEN) -->
+<div class="modal active" id="splash-modal">
     <div class="modal-content">
-        <h2 style="color: #ff7675;">Bảo Mật</h2>
-        <p>Vui lòng nhập mật khẩu để vào game</p>
-        <input type="password" id="game-password" class="custom-input" placeholder="Nhập mật khẩu..." style="text-align: center;">
-        <div id="pwd-error" style="color: #d63031; font-size: 13px; display: none; margin-bottom: 10px; font-weight: bold;">Sai mật khẩu! Vui lòng thử lại.</div>
-        <button class="primary-btn" onclick="checkPassword()" style="background: linear-gradient(to right, #ff7675, #d63031);">XÁC NHẬN</button>
+        <h2 style="color: #ff7675; margin-bottom: 5px;">PN Office</h2>
+        <p style="color: #a1c4fd; font-size: 15px;">Tự hào giới thiệu</p>
+        <h1 style="color: #fbc2eb; font-size: 26px; margin: 10px 0;">Sky Garden Merge</h1>
+        <a href="https://www.facebook.com/P0293" target="_blank" class="fb-link">
+            🌐 Theo dõi Facebook
+        </a>
+        <p id="countdown-text" style="color: #fff; font-size: 15px; font-weight: bold; margin-top: 15px;">Đang vào game sau 10s...</p>
     </div>
 </div>
 
@@ -496,18 +513,19 @@
 </div>
 
 <script>
+    // GIẢM KÍCH THƯỚC NGỌC ĐỂ TĂNG KHÔNG GIAN TRỐNG
     const LEVELS = [
-        { level: 1, name: "Hạt giống", icon: "🌱", color: "#b5e7a0", radius: 28, mass: 1, points: 2 },
-        { level: 2, name: "Mầm cây", icon: "🌿", color: "#86e3ce", radius: 40, mass: 2, points: 4 },
-        { level: 3, name: "Cây non", icon: "🍀", color: "#d0e6a5", radius: 55, mass: 4, points: 8 },
-        { level: 4, name: "Hoa nhỏ", icon: "🌼", color: "#ffdd94", radius: 72, mass: 8, points: 16 },
-        { level: 5, name: "Hoa lớn", icon: "🌺", color: "#fa897b", radius: 92, mass: 16, points: 32 },
-        { level: 6, name: "Trưởng thành", icon: "🌳", color: "#ccabd8", radius: 115, mass: 32, points: 64 },
-        { level: 7, name: "Cổ thụ", icon: "🌲", color: "#86af49", radius: 145, mass: 64, points: 128 },
-        { level: 8, name: "Cây thần", icon: "🌈", color: "#b39cd0", radius: 180, mass: 128, points: 256 },
-        { level: 9, name: "Pha Lê", icon: "🔮", color: "#74b9ff", radius: 220, mass: 256, points: 512 },
-        { level: 10, name: "Vũ Trụ", icon: "🌌", color: "#0984e3", radius: 265, mass: 512, points: 1024 },
-        { level: 11, name: "Sinh Mệnh", icon: "👑", color: "#fdcb6e", radius: 320, mass: 1024, points: 2048 }
+        { level: 1, name: "Hạt giống", icon: "🌱", color: "#b5e7a0", radius: 18, mass: 1, points: 2 },
+        { level: 2, name: "Mầm cây", icon: "🌿", color: "#86e3ce", radius: 26, mass: 2, points: 4 },
+        { level: 3, name: "Cây non", icon: "🍀", color: "#d0e6a5", radius: 36, mass: 4, points: 8 },
+        { level: 4, name: "Hoa nhỏ", icon: "🌼", color: "#ffdd94", radius: 48, mass: 8, points: 16 },
+        { level: 5, name: "Hoa lớn", icon: "🌺", color: "#fa897b", radius: 62, mass: 16, points: 32 },
+        { level: 6, name: "Trưởng thành", icon: "🌳", color: "#ccabd8", radius: 80, mass: 32, points: 64 },
+        { level: 7, name: "Cổ thụ", icon: "🌲", color: "#86af49", radius: 100, mass: 64, points: 128 },
+        { level: 8, name: "Cây thần", icon: "🌈", color: "#b39cd0", radius: 125, mass: 128, points: 256 },
+        { level: 9, name: "Pha Lê", icon: "🔮", color: "#74b9ff", radius: 155, mass: 256, points: 512 },
+        { level: 10, name: "Vũ Trụ", icon: "🌌", color: "#0984e3", radius: 190, mass: 512, points: 1024 },
+        { level: 11, name: "Sinh Mệnh", icon: "👑", color: "#fdcb6e", radius: 230, mass: 1024, points: 2048 }
     ];
 
     const canvas = document.getElementById('gameCanvas');
@@ -525,7 +543,7 @@
     let canvasRect;
     let gameConfig = { bounce: 0.45 };
     let bodies = [], particles = [];
-    let score = 0, gameState = 'LOGIN'; 
+    let score = 0, gameState = 'SPLASH'; 
     let currentDropItem = null, nextItemLevel = 1;
     let mouseX = LOGICAL_WIDTH / 2;
     let canDrop = true; 
@@ -541,11 +559,19 @@
         renderEvolutionPanel();
         loadPlayerData();
         
-        // Kiểm tra xem đã đăng nhập mật khẩu trước đó chưa
-        if (localStorage.getItem('skyGardenUnlocked') === 'true') {
-            document.getElementById('login-modal').classList.remove('active');
-            showStartModal();
-        }
+        // Đếm ngược 10 giây cho Splash Screen
+        let countdown = 10;
+        let countdownEl = document.getElementById('countdown-text');
+        let timer = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+                countdownEl.innerText = `Đang vào game sau ${countdown}s...`;
+            } else {
+                clearInterval(timer);
+                document.getElementById('splash-modal').classList.remove('active');
+                showStartModal();
+            }
+        }, 1000);
         
         let resizeTimeout;
         const observer = new ResizeObserver(() => {
@@ -559,18 +585,6 @@
         
         if(centerPanel) observer.observe(centerPanel);
         window.requestAnimationFrame(() => resizeCanvas());
-    }
-
-    // XÁC NHẬN MẬT KHẨU
-    function checkPassword() {
-        let pwd = document.getElementById('game-password').value;
-        if (pwd === 'PN293') {
-            localStorage.setItem('skyGardenUnlocked', 'true');
-            document.getElementById('login-modal').classList.remove('active');
-            showStartModal();
-        } else {
-            document.getElementById('pwd-error').style.display = 'block';
-        }
     }
 
     function renderEvolutionPanel() {
@@ -750,9 +764,9 @@
         if (diffMode === 'easy') {
             gameConfig.bounce = 0.15; dangerLinePercent = 0.10; 
         } else if (diffMode === 'hard') {
-            gameConfig.bounce = 0.65; dangerLinePercent = 0.28; 
+            gameConfig.bounce = 0.60; dangerLinePercent = 0.28; 
         } else {
-            gameConfig.bounce = 0.40; dangerLinePercent = 0.18;
+            gameConfig.bounce = 0.35; dangerLinePercent = 0.18;
         }
         resizeCanvas();
 
@@ -855,7 +869,8 @@
         update() {
             if (this.spawnScale < 1) { this.spawnScale += 0.08; if (this.spawnScale > 1) this.spawnScale = 1; }
             
-            this.vy += 0.8; 
+            // SỬA LỖI ÉP LÚN NGỌC: Giảm gia tốc trọng lực mỗi khung hình nhỏ lại để tránh đè bẹp hệ thống đẩy vật lý
+            this.vy += 0.15; 
             this.vx *= 0.99; this.vy *= 0.99;
             this.x += this.vx; this.y += this.vy;
             let currentBounce = gameConfig.bounce;
@@ -934,7 +949,6 @@
                         }
                     }
 
-                    // TĂNG ĐỘ CỨNG CÁP CỦA HẠT NGỌC KHI VA CHẠM (Hệ số 0.9 giúp đẩy mạnh ra ngay lập tức)
                     let nx = dx / dist, ny = dy / dist;
                     let correction = Math.max(overlap - 0.01, 0) / ((1/a.mass) + (1/b.mass)) * 0.9;
                     a.x -= nx * correction / a.mass; a.y -= ny * correction / a.mass;
@@ -1017,7 +1031,6 @@
             ctx.shadowBlur = 0;
         }
 
-        // ĐÓNG BĂNG GAME KHI DÙNG KỸ NĂNG VÀ TĂNG TẦN SỐ QUÉT VẬT LÝ
         if (gameState === 'PLAYING' && !isTargetingDelete) {
             for (let s = 0; s < 8; s++) { bodies.forEach(b => b.update()); resolveCollisions(); }
             checkGameOver();
