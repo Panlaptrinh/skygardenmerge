@@ -58,7 +58,7 @@
             transition: all 0.3s;
         }
 
-        /* SIDEBAR (Trên cùng ở Dọc, Bên trái/phải ở Ngang) */
+        /* SIDEBAR */
         .right-sidebar {
             display: flex;
             flex-direction: column;
@@ -100,7 +100,7 @@
         }
         .icon-btn:active { transform: scale(0.9); }
 
-        /* QUYỀN TRỢ GIÚP POWERUPS - NÂNG CẤP GIAO DIỆN PREMIUM */
+        /* QUYỀN TRỢ GIÚP POWERUPS */
         .powerups-panel {
             display: flex;
             width: 100%;
@@ -254,14 +254,12 @@
                 width: 100px; height: 100%; justify-content: space-between;
             }
             .top-panel {
-                flex-direction: column; width: 100px; height: 100%;
-                justify-content: center; gap: 15px;
+                flex-direction: column; width: 100%; gap: 10px;
             }
             .hud-box { width: 100%; padding: 10px 5px; }
             .tools { flex-direction: row; width: 100%; justify-content: space-around; }
             .icon-btn { width: 38px; height: 38px; font-size: 16px;}
             
-            /* Tinh chỉnh Icon Trợ Giúp khi xoay ngang */
             .powerups-panel {
                 flex-direction: column; width: 100%; gap: 12px; align-items: center;
             }
@@ -453,8 +451,19 @@
 
 </div>
 
+<!-- MODAL ĐĂNG NHẬP BẢO MẬT -->
+<div class="modal active" id="login-modal">
+    <div class="modal-content">
+        <h2 style="color: #ff7675;">Bảo Mật</h2>
+        <p>Vui lòng nhập mật khẩu để vào game</p>
+        <input type="password" id="game-password" class="custom-input" placeholder="Nhập mật khẩu..." style="text-align: center;">
+        <div id="pwd-error" style="color: #d63031; font-size: 13px; display: none; margin-bottom: 10px; font-weight: bold;">Sai mật khẩu! Vui lòng thử lại.</div>
+        <button class="primary-btn" onclick="checkPassword()" style="background: linear-gradient(to right, #ff7675, #d63031);">XÁC NHẬN</button>
+    </div>
+</div>
+
 <!-- MODAL CÀI ĐẶT -->
-<div class="modal active" id="start-modal">
+<div class="modal" id="start-modal">
     <div class="modal-content">
         <h2>Sky Garden</h2>
         <p id="welcome-msg">Ghép hạt giống tạo Cây Tối Thượng!</p>
@@ -516,13 +525,12 @@
     let canvasRect;
     let gameConfig = { bounce: 0.45 };
     let bodies = [], particles = [];
-    let score = 0, gameState = 'START'; 
+    let score = 0, gameState = 'LOGIN'; 
     let currentDropItem = null, nextItemLevel = 1;
     let mouseX = LOGICAL_WIDTH / 2;
     let canDrop = true; 
     let playerName = "Người Chơi";
     
-    // Trạng thái kỹ năng
     let isTargetingDelete = false;
 
     let globalLeaderboard = JSON.parse(localStorage.getItem('skyGardenGH_v7')) || [];
@@ -532,6 +540,12 @@
     function initApp() {
         renderEvolutionPanel();
         loadPlayerData();
+        
+        // Kiểm tra xem đã đăng nhập mật khẩu trước đó chưa
+        if (localStorage.getItem('skyGardenUnlocked') === 'true') {
+            document.getElementById('login-modal').classList.remove('active');
+            showStartModal();
+        }
         
         let resizeTimeout;
         const observer = new ResizeObserver(() => {
@@ -545,6 +559,18 @@
         
         if(centerPanel) observer.observe(centerPanel);
         window.requestAnimationFrame(() => resizeCanvas());
+    }
+
+    // XÁC NHẬN MẬT KHẨU
+    function checkPassword() {
+        let pwd = document.getElementById('game-password').value;
+        if (pwd === 'PN293') {
+            localStorage.setItem('skyGardenUnlocked', 'true');
+            document.getElementById('login-modal').classList.remove('active');
+            showStartModal();
+        } else {
+            document.getElementById('pwd-error').style.display = 'block';
+        }
     }
 
     function renderEvolutionPanel() {
@@ -669,7 +695,7 @@
         
         currentDropItem.isWildcard = true;
         currentDropItem.icon = "🌟";
-        currentDropItem.radius = LEVELS[0].radius; // Thu nhỏ lại thành dạng Sao
+        currentDropItem.radius = LEVELS[0].radius; 
         currentDropItem.mass = 1;
         playSFX(10); 
         checkPowerups();
@@ -680,7 +706,6 @@
         score -= 50;
         addScore(0);
         
-        // Đổi ngẫu nhiên từ cấp 1 đến cấp 4 (Hoa nhỏ)
         let newLevel = Math.floor(Math.random() * 4); 
         
         let oldX = currentDropItem.x;
@@ -694,7 +719,6 @@
         if (score < 100 || gameState !== 'PLAYING') return;
         
         if (isTargetingDelete) {
-            // Hủy chọn
             isTargetingDelete = false;
             document.getElementById('pu-delete').classList.remove('active');
             document.getElementById('canvas-wrapper').classList.remove('targeting');
@@ -707,7 +731,6 @@
         document.getElementById('canvas-wrapper').classList.add('targeting');
         checkPowerups();
     }
-    // --------------------------------
 
     function showStartModal() {
         gameState = 'START';
@@ -777,7 +800,6 @@
     function handleDrop(e) {
         if (gameState !== 'PLAYING') return;
 
-        // Xử lý khi đang dùng thẻ XÓA NGỌC
         if (isTargetingDelete) {
             let clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
             let clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
@@ -790,7 +812,7 @@
                 if (dx*dx + dy*dy <= b.radius*b.radius) {
                     spawnParticles(b.x, b.y, b.color, 20);
                     bodies.splice(i, 1);
-                    score -= 100; // Trừ điểm thực tế
+                    score -= 100; 
                     addScore(0);
                     isTargetingDelete = false;
                     document.getElementById('pu-delete').classList.remove('active');
@@ -800,7 +822,7 @@
                     return;
                 }
             }
-            return; // Nếu bấm trượt ra ngoài thì không mất điểm, vẫn giữ chế độ ngắm
+            return; 
         }
 
         if (!canDrop || !currentDropItem) return;
@@ -857,7 +879,6 @@
             ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = renderRadius * 0.3; ctx.shadowOffsetY = 2;
             ctx.beginPath(); ctx.arc(0, 0, renderRadius, 0, Math.PI * 2); 
             
-            // Vẽ riêng cho Thẻ Vạn Năng
             if (this.isWildcard) {
                 let grad = ctx.createRadialGradient(
                     Math.round(-renderRadius * 0.2), Math.round(-renderRadius * 0.2), Math.round(renderRadius * 0.1), 
@@ -894,7 +915,6 @@
                 if (distSq < minDist * minDist && distSq > 0) {
                     let dist = Math.sqrt(distSq), overlap = minDist - dist;
 
-                    // Xử lý Thẻ Vạn Năng ăn ngọc
                     if ((a.isWildcard || b.isWildcard) && !a.markedForMerge && !b.markedForMerge) {
                         let normalBody = a.isWildcard ? b : a;
                         if (!normalBody.isWildcard) {
@@ -907,7 +927,6 @@
                             continue;
                         }
                     }
-                    // Hợp nhất thông thường
                     else if (a.levelIndex === b.levelIndex && !a.markedForMerge && !b.markedForMerge) {
                         if (a.levelIndex < LEVELS.length - 1) {
                             a.markedForMerge = true; b.markedForMerge = true;
@@ -915,9 +934,9 @@
                         }
                     }
 
-                    // Tương tác vật lý đẩy nhau
+                    // TĂNG ĐỘ CỨNG CÁP CỦA HẠT NGỌC KHI VA CHẠM (Hệ số 0.9 giúp đẩy mạnh ra ngay lập tức)
                     let nx = dx / dist, ny = dy / dist;
-                    let correction = Math.max(overlap - 0.1, 0) / ((1/a.mass) + (1/b.mass)) * 0.5;
+                    let correction = Math.max(overlap - 0.01, 0) / ((1/a.mass) + (1/b.mass)) * 0.9;
                     a.x -= nx * correction / a.mass; a.y -= ny * correction / a.mass;
                     b.x += nx * correction / b.mass; b.y += ny * correction / b.mass;
 
@@ -987,7 +1006,6 @@
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Kỹ năng ngắm: Vẽ lớp phủ tối tập trung
         if (isTargetingDelete) {
             ctx.fillStyle = "rgba(0,0,0,0.6)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -999,9 +1017,9 @@
             ctx.shadowBlur = 0;
         }
 
-        // Đóng băng vật lý nếu đang ngắm xóa
+        // ĐÓNG BĂNG GAME KHI DÙNG KỸ NĂNG VÀ TĂNG TẦN SỐ QUÉT VẬT LÝ
         if (gameState === 'PLAYING' && !isTargetingDelete) {
-            for (let s = 0; s < 6; s++) { bodies.forEach(b => b.update()); resolveCollisions(); }
+            for (let s = 0; s < 8; s++) { bodies.forEach(b => b.update()); resolveCollisions(); }
             checkGameOver();
         }
 
@@ -1020,7 +1038,6 @@
             if (particles[i].life <= 0) particles.splice(i, 1); 
         }
 
-        // Ẩn vật phẩm đang rớt nếu đang bận ngắm xóa
         if (currentDropItem && (gameState === 'PLAYING' || gameState === 'START') && !isTargetingDelete) {
             ctx.globalAlpha = 0.8;
             let guideX = currentDropItem.x * scale;
